@@ -1,0 +1,75 @@
+name: Release with tests
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Linux: build with gcc",
+            os: ubuntu-20.04,
+            vcpkg_root: "/usr/local/share/vcpkg",
+            cc: "gcc-10", cxx: "g++-10"
+          }
+        - {
+            name: "Linux: build with clang",
+            os: ubuntu-20.04,
+            vcpkg_root: "/usr/local/share/vcpkg",
+            cc: "clang-10", cxx: "clang++-10"
+          }
+        - {
+            name: "macOS: build with gcc",
+            os: macos-latest,
+            vcpkg_root: "/usr/local/share/vcpkg",
+            cc: "gcc-10", cxx: "g++-10"
+          }
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies (Linux)
+      if: startsWith(matrix.config.os, 'ubuntu')
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential ninja-build build-essential g++-10 libc++-dev libc++abi-dev
+
+    - name: Install dependencies (macOS)
+      if: startsWith(matrix.config.os, 'macos')
+      run: |
+        brew install gcc ninja
+
+    - name: Install packages
+      working-directory: ${{ env.HOME }}
+      run: vcpkg install gtest fmt
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+        CXX=${{ matrix.config.cxx }} CC=${{ matrix.config.cc }} \
+        cmake $GITHUB_WORKSPACE \
+        -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+        -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake \
+        -G "Ninja"
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest -C $BUILD_TYPE --output-on-failure
