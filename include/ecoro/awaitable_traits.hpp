@@ -12,16 +12,16 @@ namespace ecoro {
 
 namespace detail {
 
-template <typename Awaitable>
+template<typename Awaitable>
 using co_await_expr = decltype(std::declval<Awaitable>().operator co_await());
 
-template <typename Awaitable, typename = void>
+template<typename Awaitable, typename = void>
 struct has_co_await {
   static constexpr bool value = false;
   using type = std::false_type;
 };
 
-template <typename Awaitable>
+template<typename Awaitable>
 struct has_co_await<
     Awaitable, std::enable_if_t<is_detected<co_await_expr, Awaitable>::value>> {
   static constexpr bool value = true;
@@ -30,7 +30,7 @@ struct has_co_await<
 
 }  // namespace detail
 
-template <typename T>
+template<typename T>
 struct awaitable_traits {
   using awaiter_type = typename detail::has_co_await<T>::type;
   using awaiter = awaiter_traits<awaiter_type>;
@@ -42,10 +42,10 @@ struct awaitable_traits {
       awaiter::has_await_resume;
 };
 
-template <typename T>
+template<typename T>
 using awaitable_traits_t = awaitable_traits<T>;
 
-template <typename T>
+template<typename T>
 using awaitable_return_t = typename awaitable_traits<T>::awaiter::return_type;
 
 }  // namespace ecoro

@@ -15,13 +15,19 @@ struct task_int {
       return std::coroutine_handle<promise_type>::from_promise(*this);
     }
 
-    std::suspend_always initial_suspend() { return {}; }
+    std::suspend_always initial_suspend() {
+      return {};
+    }
 
-    std::suspend_always final_suspend() noexcept { return {}; }
+    std::suspend_always final_suspend() noexcept {
+      return {};
+    }
 
-    void unhandled_exception() {};
+    void unhandled_exception() noexcept {};
 
-    void return_value(int value) { value_ = value; }
+    void return_value(int value) {
+      value_ = value;
+    }
 
     int value_{-1};
   };
@@ -34,9 +40,13 @@ struct task_int {
       handle_.destroy();
   }
 
-  void resume() { handle_.resume(); }
+  void resume() {
+    handle_.resume();
+  }
 
-  int result() const { return handle_.promise().value_; }
+  int result() const {
+    return handle_.promise().value_;
+  }
 
   std::coroutine_handle<promise_type> handle_{nullptr};
 };

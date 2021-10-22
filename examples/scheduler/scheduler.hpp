@@ -6,9 +6,9 @@
 #ifndef ECORO_EXAMPLES_SCHEDULER_SCHEDULER_HPP
 #define ECORO_EXAMPLES_SCHEDULER_SCHEDULER_HPP
 
-#include "ecoro/task.hpp"
-#include "ecoro/scope.hpp"
 #include "ecoro/executor.hpp"
+#include "ecoro/scope.hpp"
+#include "ecoro/task.hpp"
 
 #include <vector>
 
@@ -27,8 +27,8 @@ class scheduler : public executor {
   };
 
  public:
-  template<typename Awaitable, typename ... Args>
-  void spawn(Awaitable &&awaitable, Args &&... args) {
+  template<typename Awaitable, typename... Args>
+  void spawn(Awaitable &&awaitable, Args &&...args) {
     scope_.spawn(std::forward<Awaitable>(awaitable),
                  std::forward<Args>(args)...);
   }

@@ -13,10 +13,10 @@
 
 namespace std {
 
-template <typename Promise = void>
+template<typename Promise = void>
 using coroutine_handle = experimental::coroutine_handle<Promise>;
 
-template <typename R, typename... Args>
+template<typename R, typename... Args>
 using coroutine_traits = experimental::coroutine_traits<R, Args...>;
 
 inline constexpr auto noop_coroutine = experimental::noop_coroutine;

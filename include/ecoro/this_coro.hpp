@@ -6,15 +6,17 @@
 #ifndef ECORO_THIS_CORO_HPP
 #define ECORO_THIS_CORO_HPP
 
-#include "ecoro/task.hpp"
 #include "ecoro/executor.hpp"
+#include "ecoro/task.hpp"
 
 namespace ecoro::this_coro {
 
 namespace detail {
 
 struct executor_awaiter {
-  bool await_ready() const noexcept { return false; }
+  bool await_ready() const noexcept {
+    return false;
+  }
 
   template<typename Promise>
   bool await_suspend(std::coroutine_handle<Promise> awaiting_coro) noexcept {
@@ -29,7 +31,7 @@ struct executor_awaiter {
   executor *executor_{nullptr};
 };
 
-} // detail
+}  // namespace detail
 
 [[nodiscard]] auto executor() noexcept {
   return detail::executor_awaiter{};

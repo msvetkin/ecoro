@@ -3,11 +3,10 @@
 //
 // For the license information refer to LICENSE
 
-#include "scheduler.hpp"
-#include "signal.hpp"
-
 #include "ecoro/task.hpp"
 #include "ecoro/this_coro.hpp"
+#include "scheduler.hpp"
+#include "signal.hpp"
 
 #include <iostream>
 
@@ -16,12 +15,14 @@ int main() {
 
   ecoro::sts::scheduler scheduler;
 
-  scheduler.spawn([] (auto &scheduler) -> ecoro::task<void> {
-      co_await ecoro::signal_watcher<SIGINT>();
-      scheduler.shutdown();
-  }, scheduler);
+  scheduler.spawn(
+      [](auto &scheduler) -> ecoro::task<void> {
+        co_await ecoro::signal_watcher<SIGINT>();
+        scheduler.shutdown();
+      },
+      scheduler);
 
-  scheduler.spawn([] () -> ecoro::task<void> {
+  scheduler.spawn([]() -> ecoro::task<void> {
     auto *executor = co_await ecoro::this_coro::executor();
     while (true) {
       co_await executor->sleep_for(1s);
@@ -29,7 +30,7 @@ int main() {
     }
   });
 
-  scheduler.spawn([] () -> ecoro::task<void> {
+  scheduler.spawn([]() -> ecoro::task<void> {
     while (true) {
       co_await ecoro::this_coro::sleep_for(10s);
       std::cout << "10s\n";

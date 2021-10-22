@@ -3,28 +3,25 @@
 //
 // For the license information refer to LICENSE
 
-#include "ecoro/task.hpp"
-
 #include "ecoro/sync_wait.hpp"
-
-#include "helpers/noisy.hpp"
-
+#include "ecoro/task.hpp"
 #include "gtest/gtest.h"
+#include "helpers/noisy.hpp"
 
 #include <stdexcept>
 #include <type_traits>
 
 template<class T>
-using copy_assign_t = decltype(std::declval<T&>() = std::declval<const T&>());
+using copy_assign_t = decltype(std::declval<T &>() = std::declval<const T &>());
 
-template <typename T>
+template<typename T>
 inline constexpr bool is_copy_assign_v =
     ecoro::detail::is_detected<copy_assign_t, T>::value;
 
 template<class T>
-using copyible_t = decltype(T(std::declval<const T&>()));
+using copyible_t = decltype(T(std::declval<const T &>()));
 
-template <typename T>
+template<typename T>
 inline constexpr bool is_copyible_v =
     ecoro::detail::is_detected<copyible_t, T>::value;
 
@@ -40,7 +37,9 @@ TEST(task, initial_state) {
 }
 
 TEST(task, move_task) {
-  auto task = []() -> ecoro::task<void> { co_return; }();
+  auto task = []() -> ecoro::task<void> {
+    co_return;
+  }();
 
   EXPECT_TRUE(task);
 
@@ -59,13 +58,17 @@ TEST(task, move_task) {
 }
 
 TEST(task, simple_return_void) {
-  auto task = []() -> ecoro::task<void> { co_return; }();
+  auto task = []() -> ecoro::task<void> {
+    co_return;
+  }();
 
   ecoro::sync_wait(task);
 }
 
 TEST(task, simple_return_int) {
-  auto task = []() -> ecoro::task<int> { co_return 1; }();
+  auto task = []() -> ecoro::task<int> {
+    co_return 1;
+  }();
 
   const auto value = ecoro::sync_wait(task);
   EXPECT_EQ(value, 1);
@@ -75,7 +78,7 @@ TEST(task, capture_life_time_with_temporary_lambda) {
   ecoro::helpers::noisy_counter counter;
   ecoro::helpers::noisy noisy{&counter};
 
-  auto task = [noisy = std::move(noisy)] () -> ecoro::task<void> {
+  auto task = [noisy = std::move(noisy)]() -> ecoro::task<void> {
     co_return;
   }();
 
@@ -86,7 +89,6 @@ TEST(task, capture_life_time_with_temporary_lambda) {
   EXPECT_EQ(counter.assign_copy, 0);
   EXPECT_EQ(counter.dtor, 1);
 }
-
 
 TEST(task, simple_return_int_ref) {
   int value = 2;
@@ -141,7 +143,9 @@ TEST(task, result_twice) {
   ecoro::helpers::noisy_counter counter;
 
   ecoro::sync_wait([]() -> ecoro::task<void> {
-    auto task = []() -> ecoro::task<std::string> { co_return "test"; }();
+    auto task = []() -> ecoro::task<std::string> {
+      co_return "test";
+    }();
 
     auto res = co_await task;
     EXPECT_EQ(res, "test");
@@ -181,7 +185,9 @@ TEST(task, nested_tasks) {
 
 TEST(task, loop_stack_overflow) {
   auto loop = [](const int count) -> ecoro::task<int> {
-    auto one_iteration = []() -> ecoro::task<void> { co_return; };
+    auto one_iteration = []() -> ecoro::task<void> {
+      co_return;
+    };
 
     int i = 0;
     for (; i < count; ++i) {
@@ -234,7 +240,7 @@ TEST(task, with_arg_value_explicit) {
   ecoro::helpers::noisy_counter noise_counter;
   ecoro::helpers::noisy noisy{&noise_counter};
 
-  ecoro::sync_wait([] (auto noisy) -> ecoro::task<void> {
+  ecoro::sync_wait([](auto noisy) -> ecoro::task<void> {
     EXPECT_TRUE(noisy.counter());
     EXPECT_EQ(noisy.counter()->ctor, 1);
     EXPECT_EQ(noisy.counter()->ctor_move, 1);
@@ -259,16 +265,18 @@ TEST(task, with_arg_value_implicit) {
   ecoro::helpers::noisy_counter noise_counter;
   ecoro::helpers::noisy noisy{&noise_counter};
 
-  ecoro::sync_wait([] (auto noisy) -> ecoro::task<void> {
-    EXPECT_TRUE(noisy.counter());
-    EXPECT_EQ(noisy.counter()->ctor, 1);
-    EXPECT_EQ(noisy.counter()->ctor_move, 1);
-    EXPECT_EQ(noisy.counter()->ctor_copy, 1);
-    EXPECT_EQ(noisy.counter()->assign_move, 0);
-    EXPECT_EQ(noisy.counter()->assign_copy, 0);
-    EXPECT_EQ(noisy.counter()->dtor, 1);
-    co_return;
-  }, noisy);
+  ecoro::sync_wait(
+      [](auto noisy) -> ecoro::task<void> {
+        EXPECT_TRUE(noisy.counter());
+        EXPECT_EQ(noisy.counter()->ctor, 1);
+        EXPECT_EQ(noisy.counter()->ctor_move, 1);
+        EXPECT_EQ(noisy.counter()->ctor_copy, 1);
+        EXPECT_EQ(noisy.counter()->assign_move, 0);
+        EXPECT_EQ(noisy.counter()->assign_copy, 0);
+        EXPECT_EQ(noisy.counter()->dtor, 1);
+        co_return;
+      },
+      noisy);
 
   EXPECT_TRUE(noisy.counter());
   EXPECT_EQ(noisy.counter(), &noise_counter);
@@ -284,7 +292,7 @@ TEST(task, with_arg_ref_explicit) {
   ecoro::helpers::noisy_counter noise_counter;
   ecoro::helpers::noisy noisy{&noise_counter};
 
-  ecoro::sync_wait([] (auto &noisy) -> ecoro::task<void> {
+  ecoro::sync_wait([](auto &noisy) -> ecoro::task<void> {
     EXPECT_TRUE(noisy.counter());
     EXPECT_EQ(noisy.counter()->ctor, 1);
     EXPECT_EQ(noisy.counter()->ctor_move, 0);
@@ -309,16 +317,18 @@ TEST(task, with_arg_ref_implicit) {
   ecoro::helpers::noisy_counter noise_counter;
   ecoro::helpers::noisy noisy{&noise_counter};
 
-  ecoro::sync_wait([] (auto &noisy) -> ecoro::task<void> {
-    EXPECT_TRUE(noisy.counter());
-    EXPECT_EQ(noisy.counter()->ctor, 1);
-    EXPECT_EQ(noisy.counter()->ctor_move, 0);
-    EXPECT_EQ(noisy.counter()->ctor_copy, 0);
-    EXPECT_EQ(noisy.counter()->assign_move, 0);
-    EXPECT_EQ(noisy.counter()->assign_copy, 0);
-    EXPECT_EQ(noisy.counter()->dtor, 0);
-    co_return;
-  }, noisy);
+  ecoro::sync_wait(
+      [](auto &noisy) -> ecoro::task<void> {
+        EXPECT_TRUE(noisy.counter());
+        EXPECT_EQ(noisy.counter()->ctor, 1);
+        EXPECT_EQ(noisy.counter()->ctor_move, 0);
+        EXPECT_EQ(noisy.counter()->ctor_copy, 0);
+        EXPECT_EQ(noisy.counter()->assign_move, 0);
+        EXPECT_EQ(noisy.counter()->assign_copy, 0);
+        EXPECT_EQ(noisy.counter()->dtor, 0);
+        co_return;
+      },
+      noisy);
 
   EXPECT_TRUE(noisy.counter());
   EXPECT_EQ(noisy.counter(), &noise_counter);
@@ -334,7 +344,7 @@ TEST(task, with_arg_rvalue_explicit) {
   ecoro::helpers::noisy_counter noise_counter;
   ecoro::helpers::noisy noisy{&noise_counter};
 
-  ecoro::sync_wait([] (auto &&noisy) -> ecoro::task<void> {
+  ecoro::sync_wait([](auto &&noisy) -> ecoro::task<void> {
     EXPECT_TRUE(noisy.counter());
     EXPECT_EQ(noisy.counter()->ctor, 1);
     EXPECT_EQ(noisy.counter()->ctor_move, 0);
@@ -359,16 +369,18 @@ TEST(task, with_arg_rvalue_implicit) {
   ecoro::helpers::noisy_counter noise_counter;
   ecoro::helpers::noisy noisy{&noise_counter};
 
-  ecoro::sync_wait([] (auto &&noisy) -> ecoro::task<void> {
-    EXPECT_TRUE(noisy.counter());
-    EXPECT_EQ(noisy.counter()->ctor, 1);
-    EXPECT_EQ(noisy.counter()->ctor_move, 0);
-    EXPECT_EQ(noisy.counter()->ctor_copy, 0);
-    EXPECT_EQ(noisy.counter()->assign_move, 0);
-    EXPECT_EQ(noisy.counter()->assign_copy, 0);
-    EXPECT_EQ(noisy.counter()->dtor, 0);
-    co_return;
-  }, std::move(noisy));
+  ecoro::sync_wait(
+      [](auto &&noisy) -> ecoro::task<void> {
+        EXPECT_TRUE(noisy.counter());
+        EXPECT_EQ(noisy.counter()->ctor, 1);
+        EXPECT_EQ(noisy.counter()->ctor_move, 0);
+        EXPECT_EQ(noisy.counter()->ctor_copy, 0);
+        EXPECT_EQ(noisy.counter()->assign_move, 0);
+        EXPECT_EQ(noisy.counter()->assign_copy, 0);
+        EXPECT_EQ(noisy.counter()->dtor, 0);
+        co_return;
+      },
+      std::move(noisy));
 
   EXPECT_TRUE(noisy.counter());
   EXPECT_EQ(noisy.counter(), &noise_counter);

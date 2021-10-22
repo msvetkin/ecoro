@@ -39,12 +39,14 @@ class sync_wait_event {
   bool is_set_{false};
 };
 
-template <typename T>
+template<typename T>
 class sync_wait_task_promise : public task_promise<T> {
   struct final_awaiter {
-    bool await_ready() const noexcept { return false; }
+    bool await_ready() const noexcept {
+      return false;
+    }
 
-    template <typename Promise>
+    template<typename Promise>
     void await_suspend(std::coroutine_handle<Promise> coroutine) noexcept {
       coroutine.promise().event_->release();
     }
@@ -55,23 +57,26 @@ class sync_wait_task_promise : public task_promise<T> {
  public:
   using task_promise<T>::task_promise;
 
-  final_awaiter final_suspend() noexcept { return {}; }
+  final_awaiter final_suspend() noexcept {
+    return {};
+  }
 
-  void set_event(sync_wait_event *event) noexcept { event_ = event; }
+  void set_event(sync_wait_event *event) noexcept {
+    event_ = event;
+  }
 
  private:
   sync_wait_event *event_{nullptr};
 };
 
-template <typename T>
+template<typename T>
 class sync_wait_task final : public task<T, sync_wait_task_promise<T>> {
  public:
   using base = task<T, sync_wait_task_promise<T>>;
   using base::base;
 
   sync_wait_task(base &&other) noexcept
-      : base(std::move(other)) {
-  }
+      : base(std::move(other)) {}
 
   void wait() noexcept {
     base::handle().promise().set_event(&event_);
@@ -83,13 +88,13 @@ class sync_wait_task final : public task<T, sync_wait_task_promise<T>> {
   sync_wait_event event_;
 };
 
-template <typename Awaitable>
+template<typename Awaitable>
 sync_wait_task<awaitable_return_t<Awaitable>> make_sync_wait_task(
     Awaitable &&awaitable) {
   co_return co_await std::forward<Awaitable>(awaitable);
 }
 
-template <typename Awaitable>
+template<typename Awaitable>
 decltype(auto) sync_wait_impl(Awaitable &&awaitable) {
   auto task = make_sync_wait_task(std::forward<Awaitable>(awaitable));
   task.wait();

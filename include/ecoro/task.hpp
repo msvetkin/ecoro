@@ -11,9 +11,8 @@
 
 namespace ecoro {
 
-template <typename T,
-          typename Promise = task_promise<T>,
-          template<typename> class Awaiter = detail::task_awaitable>
+template<typename T, typename Promise = task_promise<T>,
+         template<typename> class Awaiter = detail::task_awaitable>
 class task {
  public:
   struct promise_type : Promise {
@@ -27,15 +26,15 @@ class task {
   using value_type = typename promise_type::value_type;
   using handle_type = std::coroutine_handle<promise_type>;
 
-  task() noexcept
-      : handle_(nullptr) {}
+  task() noexcept {}
 
   explicit task(handle_type coroutine_frame) noexcept
       : handle_(coroutine_frame) {}
 
-  task(task&& that) noexcept : handle_(std::exchange(that.handle_, nullptr)) {}
+  task(task &&that) noexcept
+      : handle_(std::exchange(that.handle_, nullptr)) {}
 
-  task& operator=(task&& other) noexcept {
+  task &operator=(task &&other) noexcept {
     if (std::addressof(other) != this) {
       clear();
       handle_ = std::exchange(other.handle_, {});
@@ -44,14 +43,14 @@ class task {
     return *this;
   }
 
-  task(const task&) = delete;
-  task& operator=(const task&) = delete;
+  task(const task &) = delete;
+  task &operator=(const task &) = delete;
 
   virtual ~task() {
     clear();
   }
 
-  handle_type& handle() noexcept {
+  handle_type &handle() noexcept {
     return handle_;
   }
 
@@ -90,7 +89,7 @@ class task {
     return handle_ && !handle_.done();
   }
 
-  auto operator co_await() const& noexcept {
+  auto operator co_await() const &noexcept {
     return Awaiter<promise_type>{handle_};
   }
 

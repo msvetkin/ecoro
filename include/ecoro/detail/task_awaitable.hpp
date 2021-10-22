@@ -17,31 +17,31 @@ class executor;
 
 namespace ecoro::detail {
 
-template <typename Promise>
+template<typename Promise>
 using set_executor_expr = decltype(std::declval<Promise>().set_executor(
-      static_cast<executor *>(nullptr)));
+    static_cast<executor *>(nullptr)));
 
-template <typename Promise, typename = void>
+template<typename Promise, typename = void>
 struct has_set_executor {
   static constexpr bool value = false;
   using type = std::false_type;
 };
 
-template <typename Promise>
+template<typename Promise>
 struct has_set_executor<
     Promise, std::enable_if_t<is_detected<set_executor_expr, Promise>::value>> {
   static constexpr bool value = true;
   using type = set_executor_expr<Promise>;
 };
 
-template <typename Promise>
+template<typename Promise>
 struct task_awaitable {
   bool await_ready() const noexcept {
     return !coroutine_handle_ || coroutine_handle_.done();
   }
 
 #ifdef SYMMETRIC_TRANSFER
-  template <typename P>
+  template<typename P>
   auto await_suspend(std::coroutine_handle<P> awaiting_coro) noexcept {
     if constexpr (has_set_executor<P>::value) {
       coroutine_handle_.promise().set_executor(
@@ -52,7 +52,7 @@ struct task_awaitable {
     return coroutine_handle_;
   }
 #else
-  template <typename P>
+  template<typename P>
   bool await_suspend(std::coroutine_handle<P> awaiting_coro) noexcept {
     // The solution was found here https://github.com/lewissbaker/cppcoro
     // NOTE: We are using the bool-returning version of await_suspend() here
@@ -80,7 +80,9 @@ struct task_awaitable {
   }
 #endif  // SYMMETRIC_TRANSFER
 
-  decltype(auto) await_resume() { return coroutine_handle_.promise().result(); }
+  decltype(auto) await_resume() {
+    return coroutine_handle_.promise().result();
+  }
 
   std::coroutine_handle<Promise> coroutine_handle_;
 };

@@ -27,7 +27,7 @@ bool scheduler::timer_awaiter::await_suspend(
   return true;
 }
 
-void scheduler::timer_awaiter::await_resume() const noexcept { }
+void scheduler::timer_awaiter::await_resume() const noexcept {}
 
 int scheduler::exec() {
   auto timer_task = process_timers();
@@ -37,9 +37,10 @@ int scheduler::exec() {
 
 ecoro::task<void> scheduler::sleep_for(
     const std::chrono::seconds seconds) noexcept {
-  co_return co_await timer_awaiter{*this,
-      std::chrono::time_point_cast<std::chrono::seconds>(
-          std::chrono::system_clock::now()) + seconds};
+  co_return co_await timer_awaiter{
+      *this, std::chrono::time_point_cast<std::chrono::seconds>(
+                 std::chrono::system_clock::now()) +
+                 seconds};
 }
 
 void scheduler::add_timer_awaiter(timer_awaiter *timer) {

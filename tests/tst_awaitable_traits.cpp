@@ -4,7 +4,6 @@
 // For the license information refer to LICENSE
 
 #include "ecoro/awaitable_traits.hpp"
-
 #include "gtest/gtest.h"
 
 TEST(awaitable_traits, non_awaitable) {
@@ -21,7 +20,9 @@ TEST(awaitable_traits, non_awaitable) {
 
 TEST(awaitable_traits, awaitable_return_void) {
   struct awaitable {
-    auto operator co_await() const& noexcept { return std::suspend_always{}; }
+    auto operator co_await() const &noexcept {
+      return std::suspend_always{};
+    }
   };
 
   using awaitable_traits = ecoro::awaitable_traits_t<awaitable>;
@@ -42,7 +43,9 @@ TEST(awaitable_traits, awaitable_return_int) {
   };
 
   struct awaitable {
-    auto operator co_await() const& noexcept { return awaiter{}; }
+    auto operator co_await() const &noexcept {
+      return awaiter{};
+    }
   };
 
   using awaitable_traits = ecoro::awaitable_traits_t<awaitable>;
@@ -54,13 +57,15 @@ TEST(awaitable_traits, awaitable_return_int) {
   EXPECT_TRUE(awaitable_traits::is_awaitable);
 }
 
-template <typename T>
-auto testReturnType(T&& t) ->
-    typename ecoro::awaitable_traits<T&&>::awaiter::return_type;
+template<typename T>
+auto testReturnType(T &&t) ->
+    typename ecoro::awaitable_traits<T &&>::awaiter::return_type;
 
 TEST(awaitableTraits, return_type_for_function) {
   struct awaitable {
-    auto operator co_await() const& noexcept { return std::suspend_always{}; }
+    auto operator co_await() const &noexcept {
+      return std::suspend_always{};
+    }
   };
 
   constexpr bool returnVoid =

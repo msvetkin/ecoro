@@ -19,7 +19,8 @@ namespace detail {
 
 class when_all_counter {
  public:
-  explicit when_all_counter(const std::size_t count) noexcept : count_(count) {}
+  explicit when_all_counter(const std::size_t count) noexcept
+      : count_(count) {}
 
   bool is_ready() const noexcept {
     return static_cast<bool>(awaiting_coroutine_);
@@ -42,12 +43,14 @@ class when_all_counter {
   std::coroutine_handle<> awaiting_coroutine_;
 };
 
-template <typename T>
+template<typename T>
 class when_all_task_promise : public task_promise<T> {
   struct final_awaiter {
-    bool await_ready() const noexcept { return false; }
+    bool await_ready() const noexcept {
+      return false;
+    }
 
-    template <typename Promise>
+    template<typename Promise>
     void await_suspend(
         std::coroutine_handle<Promise> current_coroutine) noexcept {
       current_coroutine.promise().counter_->notify_awaitable_completed();
@@ -72,21 +75,22 @@ class when_all_task_promise : public task_promise<T> {
     }
   }
 
-  void set_counter(when_all_counter &counter) { counter_ = &counter; }
+  void set_counter(when_all_counter &counter) {
+    counter_ = &counter;
+  }
 
  private:
   when_all_counter *counter_{nullptr};
 };
 
-template <typename T>
+template<typename T>
 class when_all_task final : public task<T, when_all_task_promise<T>> {
  public:
   using base = task<T, when_all_task_promise<T>>;
   using base::base;
 
   when_all_task(base &&other) noexcept
-      : base(std::move(other)) {
-  }
+      : base(std::move(other)) {}
 
   void start(when_all_counter &counter) noexcept {
     base::handle().promise().set_counter(counter);
@@ -94,13 +98,13 @@ class when_all_task final : public task<T, when_all_task_promise<T>> {
   }
 };
 
-template <typename Awaitable>
+template<typename Awaitable>
 when_all_task<awaitable_return_t<Awaitable>> make_when_all_task(
     Awaitable awaitable) {
   co_return co_await awaitable;
 }
 
-template <typename... Awaitables>
+template<typename... Awaitables>
 class when_all_executor {
  public:
   explicit when_all_executor(Awaitables &&...awaitables) noexcept(
@@ -149,7 +153,7 @@ class when_all_executor {
     return res;
   }
 
-  template <std::size_t... Is>
+  template<std::size_t... Is>
   void start(std::index_sequence<Is...>) noexcept {
     (std::get<Is>(awaitables_).start(counter_), ...);
   }
@@ -159,7 +163,7 @@ class when_all_executor {
   std::tuple<Awaitables...> awaitables_;
 };
 
-template <typename... Awaitables>
+template<typename... Awaitables>
 decltype(auto) make_when_all_executor(Awaitables &&...awaitables) {
   return when_all_executor<Awaitables...>(
       std::forward<Awaitables>(awaitables)...);
@@ -167,7 +171,7 @@ decltype(auto) make_when_all_executor(Awaitables &&...awaitables) {
 
 }  // namespace detail
 
-template <typename... Awaitables>
+template<typename... Awaitables>
 [[nodiscard]] decltype(auto) when_all(Awaitables &&...awaitables) {
   return detail::make_when_all_executor(detail::make_when_all_task(
       detail::invoke_or_pass(std::forward<Awaitables>(awaitables)))...);

@@ -5,7 +5,6 @@
 
 #include "ecoro/scope.hpp"
 #include "ecoro/task.hpp"
-
 #include "gtest/gtest.h"
 
 TEST(scope, initial_state) {
@@ -15,7 +14,7 @@ TEST(scope, initial_state) {
 
 TEST(scope, join_empty) {
   int step = 0;
-  auto t = [] (auto &step) -> ecoro::task<void> {
+  auto t = [](auto &step) -> ecoro::task<void> {
     step++;
     ecoro::scope scope;
     step++;
@@ -32,12 +31,12 @@ TEST(scope, join_empty) {
 TEST(scope, join_one) {
   std::vector<int> steps;
 
-  auto t = [] (auto &steps) -> ecoro::task<void> {
+  auto t = [](auto &steps) -> ecoro::task<void> {
     steps.push_back(1);
     ecoro::scope scope;
     steps.push_back(2);
 
-    scope.spawn([] (auto &steps) -> ecoro::task<void> {
+    scope.spawn([](auto &steps) -> ecoro::task<void> {
       steps.push_back(3);
       co_return;
     }(steps));

@@ -13,7 +13,7 @@
 
 namespace ecoro::detail {
 
-template <typename T>
+template<typename T>
 class task_promise_impl {
   static constexpr bool is_ref = std::is_reference_v<T>;
   using result_variant_value_type =
@@ -26,7 +26,7 @@ class task_promise_impl {
     result_variant_ = std::current_exception();
   }
 
-  template <typename U>
+  template<typename U>
   void return_value(U &&value) noexcept {
     if constexpr (is_ref) {
       result_variant_ = &value;
@@ -53,7 +53,7 @@ class task_promise_impl {
   variant result_variant_;
 };
 
-template <>
+template<>
 class task_promise_impl<void> {
  public:
   using value_type = void;
@@ -66,7 +66,9 @@ class task_promise_impl<void> {
     }
   }
 
-  void unhandled_exception() noexcept { exception_ = std::current_exception(); }
+  void unhandled_exception() noexcept {
+    exception_ = std::current_exception();
+  }
 
  private:
   std::exception_ptr exception_;

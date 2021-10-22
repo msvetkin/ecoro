@@ -3,8 +3,8 @@
 //
 // For the license information refer to LICENSE
 
-#ifndef ECORO_EXAMPLES_SCHEDULER_SIGNAL_HPP_
-#define ECORO_EXAMPLES_SCHEDULER_SIGNAL_HPP_
+#ifndef ECORO_EXAMPLES_SCHEDULER_SIGNAL_HPP
+#define ECORO_EXAMPLES_SCHEDULER_SIGNAL_HPP
 
 #include "ecoro/coroutine.hpp"
 
@@ -21,8 +21,12 @@ class signal_watcher {
 
   auto operator co_await() {
     struct awaiter {
-      bool await_ready() const noexcept { return false; }
-      bool await_suspend(std::coroutine_handle<> awaiting_coroutine) const noexcept {
+      bool await_ready() const noexcept {
+        return false;
+      }
+
+      bool await_suspend(
+          std::coroutine_handle<> awaiting_coroutine) const noexcept {
         awaiting_coroutine_ = awaiting_coroutine;
         return true;
       }
@@ -43,5 +47,4 @@ class signal_watcher {
 
 }  // namespace ecoro
 
-
-#endif  // ECORO_EXAMPLES_SCHEDULER_SIGNAL_HPP_
+#endif  // ECORO_EXAMPLES_SCHEDULER_SIGNAL_HPP

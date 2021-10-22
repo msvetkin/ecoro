@@ -14,11 +14,11 @@ namespace ecoro {
 
 class scope_guard {
  public:
-  template <typename Callable>
+  template<typename Callable>
   explicit scope_guard(Callable &&callback) noexcept
       : callback_(std::forward<Callable>(callback)) {}
 
-  template <typename Context, typename Callable>
+  template<typename Context, typename Callable>
   explicit scope_guard(Context *context, Callable &&callback) noexcept
       : callback_(std::bind(callback, context)) {}
 

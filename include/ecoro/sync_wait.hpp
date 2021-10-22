@@ -11,12 +11,10 @@
 
 namespace ecoro {
 
-template <typename Awaitable, typename ... Args>
+template<typename Awaitable, typename... Args>
 decltype(auto) sync_wait(Awaitable &&awaitable, Args &&...args) {
-  return detail::sync_wait_impl(
-      detail::invoke_or_pass(
-          std::forward<Awaitable>(awaitable),
-          std::forward<Args>(args)...));
+  return detail::sync_wait_impl(detail::invoke_or_pass(
+      std::forward<Awaitable>(awaitable), std::forward<Args>(args)...));
 }
 
 }  // namespace ecoro

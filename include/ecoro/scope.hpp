@@ -20,19 +20,21 @@ class scope {
  public:
   explicit scope(executor *const executor = nullptr);
 
-  template <typename Awaitable, typename ... Args>
-  void spawn(Awaitable &&awaitable, Args &&... args) {
-    run(detail::invoke_or_pass(
-          std::forward<Awaitable>(awaitable),
-          std::forward<Args>(args)...));
+  template<typename Awaitable, typename... Args>
+  void spawn(Awaitable &&awaitable, Args &&...args) {
+    run(detail::invoke_or_pass(std::forward<Awaitable>(awaitable),
+                               std::forward<Args>(args)...));
   }
 
   [[nodiscard]] auto join() noexcept {
     class join_awaiter {
      public:
-      explicit join_awaiter(scope &scope) noexcept : scope_(scope) {}
+      explicit join_awaiter(scope &scope) noexcept
+          : scope_(scope) {}
 
-      bool await_ready() noexcept { return !scope_.size(); }
+      bool await_ready() noexcept {
+        return !scope_.size();
+      }
 
       bool await_suspend(std::coroutine_handle<> continuation) noexcept {
         if (scope_.size()) {
@@ -57,15 +59,27 @@ class scope {
  private:
   struct oneway_task {
     struct promise_type {
-      std::suspend_never initial_suspend() const noexcept { return {}; }
-      std::suspend_never final_suspend() const noexcept { return {}; }
-      void unhandled_exception() const { std::terminate(); }
-      oneway_task get_return_object() const noexcept { return {}; }
+      std::suspend_never initial_suspend() const noexcept {
+        return {};
+      }
+
+      std::suspend_never final_suspend() const noexcept {
+        return {};
+      }
+
+      void unhandled_exception() const {
+        std::terminate();
+      }
+
+      oneway_task get_return_object() const noexcept {
+        return {};
+      }
+
       void return_void() const noexcept {}
     };
   };
 
-  template <typename Awaitable>
+  template<typename Awaitable>
   oneway_task run(Awaitable awaitable) {
     on_task_started();
     awaitable.set_executor(executor_);

@@ -3,11 +3,9 @@
 //
 // For the license information refer to LICENSE
 
-#include "ecoro/when_all.hpp"
-
-#include "ecoro/sync_wait.hpp"
 #include "ecoro/scope_guard.hpp"
-
+#include "ecoro/sync_wait.hpp"
+#include "ecoro/when_all.hpp"
 #include "gtest/gtest.h"
 
 #include <string>
@@ -19,13 +17,17 @@ TEST(when_all, sanity_check) {
 
     auto task1 = [&started1, &finished1]() -> ecoro::task<void> {
       started1 = true;
-      ecoro::scope_guard guard{[&finished1] { finished1 = true; }};
+      ecoro::scope_guard guard{[&finished1] {
+        finished1 = true;
+      }};
       co_return;
     };
 
     auto task2 = [&started2, &finished2]() -> ecoro::task<void> {
       started2 = true;
-      ecoro::scope_guard guard{[&finished2] { finished2 = true; }};
+      ecoro::scope_guard guard{[&finished2] {
+        finished2 = true;
+      }};
       co_return;
     };
 
@@ -48,7 +50,9 @@ TEST(when_all, pass_as_lambda) {
 
   auto task = [&started, &finished]() -> ecoro::task<void> {
     started = true;
-    ecoro::scope_guard guard{[&finished] { finished = true; }};
+    ecoro::scope_guard guard{[&finished] {
+      finished = true;
+    }};
     co_return;
   };
 
@@ -66,7 +70,9 @@ TEST(when_all, pass_as_awaitable) {
 
   auto task = [&started, &finished]() -> ecoro::task<void> {
     started = true;
-    ecoro::scope_guard guard{[&finished] { finished = true; }};
+    ecoro::scope_guard guard{[&finished] {
+      finished = true;
+    }};
     co_return;
   };
 
@@ -81,12 +87,16 @@ TEST(when_all, pass_as_awaitable) {
 
 TEST(when_all, return_result) {
   const auto res = ecoro::sync_wait([]() -> ecoro::task<int> {
-    auto task1 = []() -> ecoro::task<int> { co_return 1; };
+    auto task1 = []() -> ecoro::task<int> {
+      co_return 1;
+    };
 
     bool finished = false;
 
     auto task2 = [&finished]() -> ecoro::task<void> {
-      ecoro::scope_guard guard{[&finished] { finished = true; }};
+      ecoro::scope_guard guard{[&finished] {
+        finished = true;
+      }};
       co_return;
     };
 
@@ -110,9 +120,13 @@ TEST(when_all, return_result) {
 
 TEST(when_all, structered_binding) {
   const auto res = ecoro::sync_wait([]() -> ecoro::task<int> {
-    auto task1 = []() -> ecoro::task<int> { co_return 1; };
+    auto task1 = []() -> ecoro::task<int> {
+      co_return 1;
+    };
 
-    auto task2 = []() -> ecoro::task<int> { co_return 2; };
+    auto task2 = []() -> ecoro::task<int> {
+      co_return 2;
+    };
 
     auto [r1, r2] = co_await ecoro::when_all(task1, task2);
 
@@ -144,7 +158,9 @@ TEST(when_all, exceptions) {
 class conext_switcher {
  public:
   struct awaiter {
-    bool await_ready() const noexcept { return false; };
+    bool await_ready() const noexcept {
+      return false;
+    };
 
     bool await_suspend(std::coroutine_handle<> awaiting_coroutine) noexcept {
       continuation_ = awaiting_coroutine;
@@ -168,7 +184,9 @@ class conext_switcher {
    public:
     explicit context(conext_switcher &switcher) : switcher_(switcher) {}
 
-    auto operator co_await() noexcept { return awaiter{switcher_}; };
+    auto operator co_await() noexcept {
+      return awaiter{switcher_};
+    };
 
     ~context() {
       if (switcher_.next_) {
@@ -181,7 +199,9 @@ class conext_switcher {
     conext_switcher &switcher_;
   };
 
-  context create_context() noexcept { return context(*this); }
+  context create_context() noexcept {
+    return context(*this);
+  }
 
  private:
   awaiter *next_{nullptr};
@@ -195,8 +215,9 @@ TEST(when_all, switcher) {
     auto task1 = [&]() -> ecoro::task<void> {
       auto ctx = switcher.create_context();
 
-      ecoro::scope_guard guard{
-          [&execution_order] { execution_order.push_back('4'); }};
+      ecoro::scope_guard guard{[&execution_order] {
+        execution_order.push_back('4');
+      }};
 
       execution_order.push_back('1');
       co_await ctx;
@@ -206,8 +227,9 @@ TEST(when_all, switcher) {
 
     auto task2 = [&switcher, &execution_order]() -> ecoro::task<void> {
       auto ctx = switcher.create_context();
-      ecoro::scope_guard guard{
-          [&execution_order] { execution_order.push_back('6'); }};
+      ecoro::scope_guard guard{[&execution_order] {
+        execution_order.push_back('6');
+      }};
 
       execution_order.push_back('2');
       co_await ctx;

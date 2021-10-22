@@ -16,13 +16,15 @@ namespace ecoro {
 
 class executor;
 
-template <typename T>
+template<typename T>
 class task_promise : public detail::task_promise_impl<T> {
   struct final_awaiter {
-    bool await_ready() const noexcept { return false; }
+    bool await_ready() const noexcept {
+      return false;
+    }
 
 #ifdef SYMMETRIC_TRANSFER
-    template <typename Promise>
+    template<typename Promise>
     std::coroutine_handle<> await_suspend(
         std::coroutine_handle<Promise> coro) noexcept {
       if (coro.promise().continuation_) {
@@ -32,7 +34,7 @@ class task_promise : public detail::task_promise_impl<T> {
       return std::noop_coroutine();
     }
 #else
-    template <typename Promise>
+    template<typename Promise>
     void await_suspend(std::coroutine_handle<Promise> coroutine) noexcept {
       auto &promise = coroutine.promise();
       // The solution was found here https://github.com/lewissbaker/cppcoro
@@ -52,11 +54,18 @@ class task_promise : public detail::task_promise_impl<T> {
   };
 
  public:
-  std::suspend_always initial_suspend() { return {}; }
+  std::suspend_always initial_suspend() {
+    return {};
+  }
 
-  final_awaiter final_suspend() noexcept { return {}; }
+  final_awaiter final_suspend() noexcept {
+    return {};
+  }
 
-  ecoro::executor *executor() noexcept { return executor_; }
+  ecoro::executor *executor() noexcept {
+    return executor_;
+  }
+
   void set_executor(ecoro::executor *executor) noexcept {
     if (executor_ != executor)
       executor_ = executor;

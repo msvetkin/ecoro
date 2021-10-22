@@ -12,24 +12,24 @@ namespace ecoro::detail {
 
 struct nonesuch {
   ~nonesuch() = delete;
-  nonesuch(nonesuch const&) = delete;
-  void operator=(nonesuch const&) = delete;
+  nonesuch(const nonesuch &) = delete;
+  void operator=(const nonesuch &) = delete;
 };
 
-template <typename Default, typename AlwaysVoid,
-          template <class...> typename Op, typename... Args>
+template<typename Default, typename AlwaysVoid, template<class...> typename Op,
+         typename... Args>
 struct detector {
   using value_type = std::false_type;
   using type = Default;
 };
 
-template <typename Default, template <class...> typename Op, typename... Args>
+template<typename Default, template<class...> typename Op, typename... Args>
 struct detector<Default, std::void_t<Op<Args...>>, Op, Args...> {
   using value_type = std::true_type;
   using type = Op<Args...>;
 };
 
-template <template <class...> typename Op, typename... Args>
+template<template<class...> typename Op, typename... Args>
 using is_detected =
     typename detail::detector<detail::nonesuch, void, Op, Args...>::value_type;
 

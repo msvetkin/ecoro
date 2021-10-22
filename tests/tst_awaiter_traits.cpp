@@ -4,7 +4,6 @@
 // For the license information refer to LICENSE
 
 #include "ecoro/awaiter_traits.hpp"
-
 #include "gtest/gtest.h"
 
 TEST(awaiter_traits, non_awaiter) {
