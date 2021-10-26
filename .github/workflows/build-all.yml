@@ -1,0 +1,87 @@
+name: Build all
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: |
+      ${{ matrix.config.os }} ${{ matrix.build_type }}
+      ${{ matrix.config.compiler.type }}
+      ${{ matrix.config.compiler.version }}
+      ${{ matrix.config.lib }}
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ["Release", "Debug"]
+        config:
+        - {
+            os: ubuntu-20.04,
+            vcpkg_root: "/usr/local/share/vcpkg",
+            compiler: { type: gcc, version: 10, cc: gcc, cxx: g++ }
+          }
+        - {
+            os: ubuntu-20.04,
+            vcpkg_root: "/usr/local/share/vcpkg",
+            compiler: { type: clang, version: 10, cc: clang, cxx: clang++ },
+            lib: 'libc++'
+          }
+        - {
+            os: macos-latest,
+            vcpkg_root: "/usr/local/share/vcpkg",
+            compiler: { type: gcc, version: 10, cc: gcc, cxx: g++ }
+          }
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        if [ $RUNNER_OS == 'Linux' ]; then
+          sudo apt-get update
+          sudo apt-get install ninja-build \
+              g++-${{matrix.config.compiler.version}}
+        elif [ $RUNNER_OS == 'macOS' ]; then
+          brew install gcc@${{matrix.config.compiler.version}} ninja
+        else
+          echo "'$RUNNER_OS' not supported"
+          exit 1
+        fi
+
+    - name: Install libc++
+      if: matrix.config.compiler.type == 'clang' && matrix.config.lib == 'libc++'
+      shell: bash
+      run: |
+        sudo apt-get install libc++-${{ matrix.config.compiler.version }}-dev \
+            libc++abi-${{ matrix.config.compiler.version }}-dev
+
+    - name: Install packages
+      working-directory: ${{ env.HOME }}
+      shell: bash
+      run: vcpkg install gtest fmt
+
+    - name: Create Build Environment
+      shell: bash
+      run: cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure CMake
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: |
+          CXX=${{ matrix.config.compiler.cxx }}-${{ matrix.config.compiler.version }} \
+          CC=${{ matrix.config.compiler.cc }}-${{ matrix.config.compiler.version }} \
+          cmake \
+          -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake \
+          -G "Ninja Multi-Config" \
+          $GITHUB_WORKSPACE
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build . --config ${{matrix.build_type}}
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest -C ${{matrix.build_type}} --output-on-failure
