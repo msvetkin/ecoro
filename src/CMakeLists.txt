@@ -12,6 +12,13 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(${PROJECT_NAME} PUBLIC -fcoroutines)
     find_package(Threads)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+          $<$<CONFIG:Debug>:>
+          $<$<CONFIG:RelWithDebInfo>:SYMMETRIC_TRANSFER>
+          $<$<CONFIG:Release>:SYMMETRIC_TRANSFER>
+          $<$<CONFIG:MinSizeRel>:SYMMETRIC_TRANSFER>
+    )
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)
     target_compile_options(${PROJECT_NAME} PUBLIC -stdlib=libc++ -fcoroutines-ts)
     target_compile_definitions(${PROJECT_NAME} PUBLIC SYMMETRIC_TRANSFER)
