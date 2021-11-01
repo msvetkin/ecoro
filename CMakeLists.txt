@@ -16,8 +16,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)
   add_link_options(-stdlib=libc++ -lc++abi)
 endif()
 
-enable_testing()
-
 add_subdirectory(src)
-add_subdirectory(tests)
 add_subdirectory(examples)
+
+enable_testing()
+add_subdirectory(tests)
