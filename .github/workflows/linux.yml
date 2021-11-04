@@ -5,7 +5,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ${{matrix.os}}
-
     strategy:
       fail-fast: false
       matrix:
@@ -27,6 +26,7 @@ jobs:
               triplet: x64-linux-clang-libcxx
             }
         ]
+
     steps:
     - uses: actions/checkout@v2
 

@@ -5,7 +5,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ${{matrix.os}}
-
     strategy:
       fail-fast: false
       matrix:
@@ -19,6 +18,7 @@ jobs:
               cxx: g++,
             }
         ]
+
     steps:
     - uses: actions/checkout@v2
 

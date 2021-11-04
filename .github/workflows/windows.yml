@@ -6,8 +6,8 @@ jobs:
   build:
     runs-on: ${{matrix.os}}
     strategy:
+      fail-fast: false
       matrix:
-        fail-fast: false
         os: [windows-2019]
         platform: [x64]
         build_type: [Debug]
