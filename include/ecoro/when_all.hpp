@@ -106,6 +106,22 @@ when_all_task<awaitable_return_t<Awaitable>> make_when_all_task(
 
 template<typename... Awaitables>
 class when_all_executor {
+  struct awaiter {
+    bool await_ready() const noexcept {
+      return executor_.counter_.is_ready();
+    }
+
+    bool await_suspend(std::coroutine_handle<> awaiting_coroutine) noexcept {
+      return executor_.start(awaiting_coroutine);
+    }
+
+    std::tuple<Awaitables...> await_resume() noexcept {
+      return std::move(executor_.awaitables_);
+    }
+
+    when_all_executor &executor_;
+  };
+
  public:
   explicit when_all_executor(Awaitables &&...awaitables) noexcept(
       std::conjunction_v<std::is_nothrow_move_constructible<Awaitables>...>)
@@ -127,22 +143,6 @@ class when_all_executor {
   }
 
   auto operator co_await() const &noexcept {
-    struct awaiter {
-      bool await_ready() const noexcept {
-        return executor_.counter_.is_ready();
-      }
-
-      bool await_suspend(std::coroutine_handle<> awaiting_coroutine) noexcept {
-        return executor_.start(awaiting_coroutine);
-      }
-
-      std::tuple<Awaitables...> await_resume() noexcept {
-        return std::move(executor_.awaitables_);
-      }
-
-      when_all_executor &executor_;
-    };
-
     return awaiter{const_cast<when_all_executor &>(*this)};
   }
 

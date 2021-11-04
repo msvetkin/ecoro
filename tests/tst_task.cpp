@@ -3,6 +3,7 @@
 //
 // For the license information refer to LICENSE
 
+#include "ecoro/detail/compiler.hpp"
 #include "ecoro/sync_wait.hpp"
 #include "ecoro/task.hpp"
 #include "gtest/gtest.h"
@@ -247,7 +248,11 @@ TEST(task, with_arg_value_explicit) {
     EXPECT_EQ(noisy.counter()->ctor_copy, 1);
     EXPECT_EQ(noisy.counter()->assign_move, 0);
     EXPECT_EQ(noisy.counter()->assign_copy, 0);
+#ifdef ECORO_COMPILER_MSVC
+    EXPECT_EQ(noisy.counter()->dtor, 1);
+#else
     EXPECT_EQ(noisy.counter()->dtor, 0);
+#endif
     co_return;
   }(noisy));
 

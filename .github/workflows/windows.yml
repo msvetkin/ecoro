@@ -1,0 +1,48 @@
+name: windows
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        fail-fast: false
+        os: [windows-2019]
+        platform: [x64]
+        build_type: [Debug]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      shell: bash
+      run: choco install ninja
+
+    - name: Install packages
+      working-directory: ${{ env.HOME }}
+      shell: cmd
+      run: |
+        vcpkg install gtest --triplet x64-windows
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure
+      working-directory: ${{runner.workspace}}/build
+      shell: cmd
+      run: |
+          call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+          cmake -G "Ninja"^
+            -DCMAKE_BUILD_TYPE=${{matrix.build_type}}^
+            -DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake^
+            %GITHUB_WORKSPACE%
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: cmd
+      run: |
+        call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+        cmake --build .
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      run: ctest --output-on-failure
