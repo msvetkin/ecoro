@@ -10,12 +10,6 @@ project(ecoro
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)
-  add_compile_options(-stdlib=libc++)
-  add_link_options(-stdlib=libc++ -lc++abi)
-endif()
-
 add_subdirectory(src)
 add_subdirectory(examples)
 

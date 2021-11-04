@@ -1,0 +1,88 @@
+name: linux
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ["Release", "Debug"]
+        os: [ubuntu-20.04]
+        compiler: [
+            {
+              type: gcc,
+              version: 10,
+              cc: gcc,
+              cxx: g++,
+              triplet: x64-linux
+            },
+            {
+              type: clang,
+              version: 10,
+              cc: clang,
+              cxx: clang++,
+              triplet: x64-linux-clang-libcxx
+            }
+        ]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build
+
+    - name: Install gcc
+      if: matrix.compiler.type == 'gcc'
+      shell: bash
+      run: |
+          sudo apt-get install g++-${{matrix.compiler.version}}
+
+    - name: Install libc++
+      if: matrix.compiler.type == 'clang'
+      shell: bash
+      run: |
+        sudo apt-get install \
+            libc++-${{matrix.compiler.version}}-dev \
+            libc++abi-${{matrix.compiler.version}}-dev
+
+    - name: Install packages
+      working-directory: ${{ env.HOME }}
+      shell: bash
+      run: |
+          CXX=${{matrix.compiler.cxx}}-${{matrix.compiler.version}} \
+          CC=${{matrix.compiler.cc}}-${{matrix.compiler.version}} \
+          vcpkg install gtest \
+              --triplet=${{matrix.compiler.triplet}} \
+              --overlay-triplets=./vcpkg/triplets/
+
+    - name: Create Build Environment
+      shell: bash
+      run: cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure CMake
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: |
+          CXX=${{matrix.compiler.cxx}}-${{matrix.compiler.version}} \
+          CC=${{matrix.compiler.cc}}-${{matrix.compiler.version}} \
+          cmake \
+              -G "Ninja" \
+              -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
+              -DVCPKG_TARGET_TRIPLET=${{matrix.compiler.triplet}} \
+              -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
+              $GITHUB_WORKSPACE
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build .
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest --output-on-failure

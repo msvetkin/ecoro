@@ -1,0 +1,68 @@
+name: macos
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ["Release"]
+        os: [macos-latest]
+        compiler: [
+            {
+              type: gcc,
+              version: 10,
+              cc: gcc,
+              cxx: g++,
+            }
+        ]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+          brew install ninja
+
+    - name: Install gcc
+      if: matrix.compiler.type == 'gcc'
+      shell: bash
+      run: |
+          brew install gcc@${{matrix.compiler.version}}
+
+    - name: Install packages
+      working-directory: ${{ env.HOME }}
+      shell: bash
+      run: |
+          CXX=${{matrix.compiler.cxx}}-${{matrix.compiler.version}} \
+          CC=${{matrix.compiler.cc}}-${{matrix.compiler.version}} \
+          vcpkg install gtest
+
+    - name: Create Build Environment
+      shell: bash
+      run: cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure CMake
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: |
+          CXX=${{matrix.compiler.cxx}}-${{matrix.compiler.version}} \
+          CC=${{matrix.compiler.cc}}-${{matrix.compiler.version}} \
+          cmake \
+              -G "Ninja" \
+              -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
+              -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
+              $GITHUB_WORKSPACE
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build .
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest --output-on-failure
