@@ -36,10 +36,18 @@ TEST(awaitable_traits, awaitable_return_void) {
 
 TEST(awaitable_traits, awaitable_return_int) {
   struct awaiter {
-    bool await_ready() const noexcept;
+    bool await_ready() const noexcept {
+      return true;
+    }
+
     bool await_suspend(
-        std::coroutine_handle<> awaitingCoroutine) const noexcept;
-    int await_resume() const noexcept;
+        std::coroutine_handle<> awaitingCoroutine) const noexcept {
+      return true;
+    }
+
+    int await_resume() const noexcept {
+      return 0;
+    }
   };
 
   struct awaitable {
