@@ -4,9 +4,14 @@ find_package(GTest CONFIG REQUIRED)
 include(GoogleTest)
 
 macro(ecoro_test TESTNAME)
-    add_executable(${TESTNAME} ${TESTNAME}.cpp)
-    target_link_libraries(${TESTNAME} GTest::gtest GTest::gtest_main ecoro)
-    gtest_discover_tests(${TESTNAME})
+  add_executable(${TESTNAME} ${TESTNAME}.cpp)
+  target_link_libraries(${TESTNAME}
+    PRIVATE
+      GTest::gtest
+      GTest::gtest_main
+      ecoro
+  )
+  gtest_discover_tests(${TESTNAME})
 endmacro()
 
 ecoro_test(tst_task)
