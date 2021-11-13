@@ -6,6 +6,7 @@
 #ifndef ECORO_DETAIL_TASK_PROMISE_IMPL_HPP
 #define ECORO_DETAIL_TASK_PROMISE_IMPL_HPP
 
+#include "ecoro/config.hpp"
 #include "ecoro/coroutine.hpp"
 
 #include <exception>
@@ -27,7 +28,7 @@ class task_promise_impl {
   }
 
   template<typename U>
-  void return_value(U &&value) noexcept {
+  ECORO_HACK_NOINLINE void return_value(U &&value) noexcept {
     if constexpr (is_ref) {
       result_variant_ = &value;
     } else {
