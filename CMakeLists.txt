@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(ecoro
-        DESCRIPTION "easy coroutine library"
-        LANGUAGES CXX)
+  DESCRIPTION "easy coroutine library"
+  LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
