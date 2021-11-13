@@ -14,6 +14,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
     target_compile_definitions(${PROJECT_NAME}
         PUBLIC
+          ECORO_HACK_NOINLINE=
           $<$<CONFIG:Debug>:>
           $<$<CONFIG:RelWithDebInfo>:SYMMETRIC_TRANSFER>
           $<$<CONFIG:Release>:SYMMETRIC_TRANSFER>
@@ -22,7 +23,18 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT ANDROID)
     target_compile_options(${PROJECT_NAME} PUBLIC -stdlib=libc++ -fcoroutines-ts)
     target_link_options(${PROJECT_NAME} PUBLIC -stdlib=libc++ -lc++abi)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC SYMMETRIC_TRANSFER)
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+          SYMMETRIC_TRANSFER
+          ECORO_HACK_NOINLINE=
+    )
 elseif (MSVC)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC SYMMETRIC_TRANSFER)
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+          SYMMETRIC_TRANSFER
+          $<$<CONFIG:Debug>:ECORO_HACK_NOINLINE=>
+          $<$<CONFIG:RelWithDebInfo>:ECORO_HACK_NOINLINE=ECORO_NOINLINE>
+          $<$<CONFIG:Release>:ECORO_HACK_NOINLINE=ECORO_NOINLINE>
+          $<$<CONFIG:MinSizeRel>:ECORO_HACK_NOINLINE=>
+    )
 endif()
