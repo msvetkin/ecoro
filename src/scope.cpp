@@ -5,12 +5,12 @@
 
 #include "ecoro/scope.hpp"
 
-#include "ecoro/executor.hpp"
+#include "ecoro/scheduler.hpp"
 
 namespace ecoro {
 
-scope::scope(executor *const executor)
-    : executor_(executor) {
+scope::scope(scheduler *const scheduler)
+    : scheduler_(scheduler) {
 }
 
 std::size_t scope::size() const noexcept {

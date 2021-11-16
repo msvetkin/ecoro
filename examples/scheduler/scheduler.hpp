@@ -6,7 +6,7 @@
 #ifndef ECORO_EXAMPLES_SCHEDULER_SCHEDULER_HPP
 #define ECORO_EXAMPLES_SCHEDULER_SCHEDULER_HPP
 
-#include "ecoro/executor.hpp"
+#include "ecoro/scheduler.hpp"
 #include "ecoro/scope.hpp"
 #include "ecoro/task.hpp"
 
@@ -14,7 +14,7 @@
 
 namespace ecoro::sts {
 
-class scheduler : public executor {
+class scheduler : public ecoro::scheduler {
   struct timer_awaiter {
     bool await_ready() const noexcept;
 

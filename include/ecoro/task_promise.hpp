@@ -14,7 +14,7 @@
 
 namespace ecoro {
 
-class executor;
+class scheduler;
 
 template<typename T>
 class task_promise : public detail::task_promise_impl<T> {
@@ -62,13 +62,13 @@ class task_promise : public detail::task_promise_impl<T> {
     return {};
   }
 
-  ecoro::executor *executor() noexcept {
-    return executor_;
+  ecoro::scheduler *scheduler() noexcept {
+    return scheduler_;
   }
 
-  void set_executor(ecoro::executor *executor) noexcept {
-    if (executor_ != executor)
-      executor_ = executor;
+  void set_scheduler(ecoro::scheduler *scheduler) noexcept {
+    if (scheduler_ != scheduler)
+      scheduler_ = scheduler;
   }
 
 #if defined(SYMMETRIC_TRANSFER)
@@ -89,7 +89,7 @@ class task_promise : public detail::task_promise_impl<T> {
   std::coroutine_handle<> continuation_;
 
  private:
-  ecoro::executor *executor_{nullptr};
+  ecoro::scheduler *scheduler_{nullptr};
 };
 
 }  // namespace ecoro

@@ -11,27 +11,27 @@
 
 namespace ecoro {
 
-class executor;
+class scheduler;
 
 };
 
 namespace ecoro::detail {
 
 template<typename Promise>
-using set_executor_expr = decltype(std::declval<Promise>().set_executor(
-    static_cast<executor *>(nullptr)));
+using set_scheduler_expr = decltype(std::declval<Promise>().set_scheduler(
+    static_cast<scheduler *>(nullptr)));
 
 template<typename Promise, typename = void>
-struct has_set_executor {
+struct has_set_scheduler {
   static constexpr bool value = false;
   using type = std::false_type;
 };
 
 template<typename Promise>
-struct has_set_executor<
-    Promise, std::enable_if_t<is_detected<set_executor_expr, Promise>::value>> {
+struct has_set_scheduler<
+    Promise, std::enable_if_t<is_detected<set_scheduler_expr, Promise>::value>> {
   static constexpr bool value = true;
-  using type = set_executor_expr<Promise>;
+  using type = set_scheduler_expr<Promise>;
 };
 
 template<typename Promise>
@@ -43,9 +43,9 @@ struct task_awaitable {
 #ifdef SYMMETRIC_TRANSFER
   template<typename P>
   auto await_suspend(std::coroutine_handle<P> awaiting_coro) noexcept {
-    if constexpr (has_set_executor<P>::value) {
-      coroutine_handle_.promise().set_executor(
-          awaiting_coro.promise().executor());
+    if constexpr (has_set_scheduler<P>::value) {
+      coroutine_handle_.promise().set_scheduler(
+          awaiting_coro.promise().scheduler());
     }
 
     coroutine_handle_.promise().set_continuation(awaiting_coro);
@@ -71,9 +71,9 @@ struct task_awaitable {
     // coroutine_handle-returning await_suspend() on both MSVC and Clang
     // as this will provide ability to suspend the awaiting coroutine and
     // resume another coroutine with a guaranteed tail-call to resume().
-    if constexpr (has_set_executor<P>::value) {
-      coroutine_handle_.promise().set_executor(
-          awaiting_coro.promise().executor());
+    if constexpr (has_set_scheduler<P>::value) {
+      coroutine_handle_.promise().set_scheduler(
+          awaiting_coro.promise().scheduler());
     }
     coroutine_handle_.resume();
     return coroutine_handle_.promise().set_continuation(awaiting_coro);
