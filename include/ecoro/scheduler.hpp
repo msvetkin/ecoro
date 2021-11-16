@@ -3,8 +3,8 @@
 //
 // For the license information refer to LICENSE
 
-#ifndef ECORO_EXECUTOR_HPP
-#define ECORO_EXECUTOR_HPP
+#ifndef ECORO_SCHEDULER_HPP
+#define ECORO_SCHEDULER_HPP
 
 #include "ecoro/task.hpp"
 
@@ -12,7 +12,7 @@
 
 namespace ecoro {
 
-class executor {
+class scheduler {
  public:
   [[nodiscard]] virtual task<void> sleep_for(
       const std::chrono::seconds seconds) noexcept = 0;
@@ -20,4 +20,4 @@ class executor {
 
 }  // namespace ecoro
 
-#endif  // ECORO_EXECUTOR_HPP
+#endif  // ECORO_SCHEDULER_HPP

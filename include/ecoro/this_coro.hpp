@@ -6,40 +6,40 @@
 #ifndef ECORO_THIS_CORO_HPP
 #define ECORO_THIS_CORO_HPP
 
-#include "ecoro/executor.hpp"
+#include "ecoro/scheduler.hpp"
 #include "ecoro/task.hpp"
 
 namespace ecoro::this_coro {
 
 namespace detail {
 
-struct executor_awaiter {
+struct scheduler_awaiter {
   bool await_ready() const noexcept {
     return false;
   }
 
   template<typename Promise>
   bool await_suspend(std::coroutine_handle<Promise> awaiting_coro) noexcept {
-    executor_ = awaiting_coro.promise().executor();
+    scheduler_ = awaiting_coro.promise().scheduler();
     return false;
   }
 
-  executor *await_resume() const noexcept {
-    return executor_;
+  scheduler *await_resume() const noexcept {
+    return scheduler_;
   }
 
-  executor *executor_{nullptr};
+  scheduler *scheduler_{nullptr};
 };
 
 }  // namespace detail
 
-[[nodiscard]] auto executor() noexcept {
-  return detail::executor_awaiter{};
+[[nodiscard]] auto scheduler() noexcept {
+  return detail::scheduler_awaiter{};
 }
 
 template<typename Duration>
 [[nodiscard]] task<void> sleep_for(Duration &&duration) {
-  auto *e = co_await executor();
+  auto *e = co_await scheduler();
   co_await e->sleep_for(std::forward<Duration>(duration));
 }
 

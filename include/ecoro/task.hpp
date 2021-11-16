@@ -54,9 +54,9 @@ class task {
     return handle_;
   }
 
-  void set_executor(executor *executor) noexcept {
+  void set_scheduler(scheduler *const scheduler) noexcept {
     if (handle_) {
-      handle_.promise().set_executor(executor);
+      handle_.promise().set_scheduler(scheduler);
     }
   }
 

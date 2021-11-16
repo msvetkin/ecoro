@@ -14,11 +14,11 @@
 
 namespace ecoro {
 
-class executor;
+class scheduler;
 
 class scope {
  public:
-  explicit scope(executor *const executor = nullptr);
+  explicit scope(scheduler *const scheduler = nullptr);
 
   template<typename Awaitable, typename... Args>
   void spawn(Awaitable &&awaitable, Args &&...args) {
@@ -82,7 +82,7 @@ class scope {
   template<typename Awaitable>
   oneway_task run(Awaitable awaitable) {
     on_task_started();
-    awaitable.set_executor(executor_);
+    awaitable.set_scheduler(scheduler_);
     auto on_completion = scope_guard(this, &scope::on_task_finished);
     co_await std::move(awaitable);
   }
@@ -93,7 +93,7 @@ class scope {
  private:
   std::atomic<std::size_t> count_{0u};
   std::coroutine_handle<> continuation_;
-  executor *executor_{nullptr};
+  scheduler *scheduler_{nullptr};
 };
 
 }  // namespace ecoro
