@@ -16,6 +16,7 @@ endmacro()
 
 ecoro_test(tst_task)
 ecoro_test(tst_awaiter_traits)
+ecoro_test(tst_manual_reset_event)
 ecoro_test(tst_awaitable_traits)
 ecoro_test(tst_when_all)
 ecoro_test(tst_when_any)
