@@ -1,4 +1,7 @@
-add_library(ecoro scope.cpp)
+add_library(ecoro
+  manual_reset_event.cpp
+  scope.cpp
+)
 add_library(ecoro::ecoro ALIAS ecoro)
 
 target_include_directories(ecoro
