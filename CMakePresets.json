@@ -26,20 +26,44 @@
         "CXX": "g++$env{COMPILER_VERSION}",
         "CC": "gcc$env{COMPILER_VERSION}"
       }
+    },
+    {
+      "name": "vcpkg-clang",
+      "inherits": "vcpkg-unix",
+      "displayName": "Ninja Multi-Config",
+      "environment": {
+        "CXX": "clang++$env{COMPILER_VERSION}",
+        "CC": "clang$env{COMPILER_VERSION}",
+        "VCPKG_DEFAULT_TRIPLET": "x64-linux-clang-libcxx"
+      }
     }
   ],
   "buildPresets": [
     {
       "name": "vcpkg-gcc",
       "configurePreset": "vcpkg-gcc"
+    },
+    {
+      "name": "vcpkg-clang",
+      "configurePreset": "vcpkg-clang"
     }
   ],
   "testPresets": [
     {
+      "name": "default",
+      "hidden": true,
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error"}
+    },
+    {
       "name": "vcpkg-gcc",
       "configurePreset": "vcpkg-gcc",
-      "output": {"outputOnFailure": true},
-      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+      "inherits": "default"
+    },
+    {
+      "name": "vcpkg-clang",
+      "configurePreset": "vcpkg-clang",
+      "inherits": "default"
     }
   ]
 }
