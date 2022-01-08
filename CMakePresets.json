@@ -1,0 +1,45 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "hidden": true
+    },
+    {
+      "name": "vcpkg-unix",
+      "inherits": "default",
+      "hidden": true,
+      "toolchainFile": "/opt/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "name": "vcpkg-gcc",
+      "inherits": "vcpkg-unix",
+      "displayName": "Ninja Multi-Config",
+      "environment": {
+        "CXX": "g++$env{COMPILER_VERSION}",
+        "CC": "gcc$env{COMPILER_VERSION}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "vcpkg-gcc",
+      "configurePreset": "vcpkg-gcc"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "vcpkg-gcc",
+      "configurePreset": "vcpkg-gcc",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+    }
+  ]
+}
