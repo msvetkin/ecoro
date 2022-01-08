@@ -13,14 +13,14 @@
       "hidden": true
     },
     {
-      "name": "vcpkg-unix",
+      "name": "vcpkg",
       "inherits": "default",
       "hidden": true,
-      "toolchainFile": "/opt/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     },
     {
       "name": "vcpkg-gcc",
-      "inherits": "vcpkg-unix",
+      "inherits": "vcpkg",
       "displayName": "Ninja Multi-Config",
       "environment": {
         "CXX": "g++$env{COMPILER_VERSION}",
@@ -29,7 +29,7 @@
     },
     {
       "name": "vcpkg-clang",
-      "inherits": "vcpkg-unix",
+      "inherits": "vcpkg",
       "displayName": "Ninja Multi-Config",
       "environment": {
         "CXX": "clang++$env{COMPILER_VERSION}",
