@@ -60,29 +60,24 @@ jobs:
               --triplet=${{matrix.compiler.triplet}} \
               --overlay-triplets=./vcpkg/triplets/
 
-    - name: Create Build Environment
-      shell: bash
-      run: cmake -E make_directory ${{runner.workspace}}/build
-
     - name: Configure CMake
-      working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
-          CXX=${{matrix.compiler.cxx}}-${{matrix.compiler.version}} \
-          CC=${{matrix.compiler.cc}}-${{matrix.compiler.version}} \
-          cmake \
-              -G "Ninja" \
-              -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
-              -DVCPKG_TARGET_TRIPLET=${{matrix.compiler.triplet}} \
-              -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
-              $GITHUB_WORKSPACE
+          VCPKG_ROOT=/usr/local/share/vcpkg \
+          COMPILER_VERSION=-${{matrix.compiler.version}} \
+          cmake --preset vcpkg-${{matrix.compiler.type}}
 
     - name: Build
-      working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: cmake --build .
+      run: |
+        cmake \
+            --build \
+            --preset vcpkg-${{matrix.compiler.type}} \
+            --config ${{matrix.build_type}}
 
     - name: Test
-      working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest --output-on-failure
+      run: |
+        ctest \
+            --preset vcpkg-${{matrix.compiler.type}} \
+            --config ${{matrix.build_type}}
