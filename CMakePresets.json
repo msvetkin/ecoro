@@ -36,6 +36,16 @@
         "CC": "clang$env{COMPILER_VERSION}",
         "VCPKG_DEFAULT_TRIPLET": "x64-linux-clang-libcxx"
       }
+    },
+    {
+      "name": "vcpkg-msvc",
+      "inherits": "vcpkg",
+      "displayName": "Ninja Multi-Config",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     }
   ],
   "buildPresets": [
@@ -46,6 +56,10 @@
     {
       "name": "vcpkg-clang",
       "configurePreset": "vcpkg-clang"
+    },
+    {
+      "name": "vcpkg-msvc",
+      "configurePreset": "vcpkg-msvc"
     }
   ],
   "testPresets": [
@@ -63,6 +77,11 @@
     {
       "name": "vcpkg-clang",
       "configurePreset": "vcpkg-clang",
+      "inherits": "default"
+    },
+    {
+      "name": "vcpkg-msvc",
+      "configurePreset": "vcpkg-msvc",
       "inherits": "default"
     }
   ]
