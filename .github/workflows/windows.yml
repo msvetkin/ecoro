@@ -25,11 +25,6 @@ jobs:
       run: |
           vcpkg install gtest --triplet x64-windows
 
-    - name: Set VCPKG_ROOT
-      id: step_one
-      run: |
-        echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" >> $env:GITHUB_ENV
-
     - name: Configure
       shell: cmd
       run: |
