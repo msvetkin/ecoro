@@ -63,7 +63,6 @@ jobs:
     - name: Configure CMake
       shell: bash
       run: |
-          VCPKG_ROOT=/usr/local/share/vcpkg \
           COMPILER_VERSION=-${{matrix.compiler.version}} \
           cmake --preset vcpkg-${{matrix.compiler.type}}
 

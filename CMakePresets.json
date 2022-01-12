@@ -16,7 +16,7 @@
       "name": "vcpkg",
       "inherits": "default",
       "hidden": true,
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      "toolchainFile": "${sourceDir}/cmake/vcpkg/vcpkg.cmake"
     },
     {
       "name": "vcpkg-gcc",
