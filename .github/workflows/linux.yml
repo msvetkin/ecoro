@@ -58,7 +58,7 @@ jobs:
           CC=${{matrix.compiler.cc}}-${{matrix.compiler.version}} \
           vcpkg install gtest \
               --triplet=${{matrix.compiler.triplet}} \
-              --overlay-triplets=./vcpkg/triplets/
+              --overlay-triplets=./cmake/vcpkg/triplets/
 
     - name: Configure CMake
       shell: bash
