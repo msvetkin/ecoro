@@ -1,3 +1,7 @@
+[![linux](https://github.com/msvetkin/ecoro/actions/workflows/linux.yml/badge.svg)](https://github.com/msvetkin/ecoro/actions/workflows/linux.yml)
+[![macos](https://github.com/msvetkin/ecoro/actions/workflows/macos.yml/badge.svg)](https://github.com/msvetkin/ecoro/actions/workflows/macos.yml)
+[![windows](https://github.com/msvetkin/ecoro/actions/workflows/windows.yml/badge.svg)](https://github.com/msvetkin/ecoro/actions/workflows/windows.yml)
+
 ecoro is a research project to find an easy way use coroutines in daily c++ life.
 
 # Requirements
