@@ -35,7 +35,7 @@ int scheduler::exec() {
   return 1;
 }
 
-ecoro::task<void> scheduler::sleep_for(
+ecoro::task<void> scheduler::schedule_after(
     const std::chrono::seconds seconds) noexcept {
   co_return co_await timer_awaiter{
       *this, std::chrono::time_point_cast<std::chrono::seconds>(

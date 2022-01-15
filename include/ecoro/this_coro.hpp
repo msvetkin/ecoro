@@ -40,7 +40,7 @@ struct scheduler_awaiter {
 template<typename Duration>
 [[nodiscard]] task<void> sleep_for(Duration &&duration) {
   auto *e = co_await scheduler();
-  co_await e->sleep_for(std::forward<Duration>(duration));
+  co_await e->schedule_after(std::forward<Duration>(duration));
 }
 
 }  // namespace ecoro::this_coro

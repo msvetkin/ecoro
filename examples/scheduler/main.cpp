@@ -25,7 +25,7 @@ int main() {
   scheduler.spawn([]() -> ecoro::task<void> {
     auto *scheduler = co_await ecoro::this_coro::scheduler();
     while (true) {
-      co_await scheduler->sleep_for(1s);
+      co_await scheduler->schedule_after(1s);
       std::cout << "1s\n";
     }
   });

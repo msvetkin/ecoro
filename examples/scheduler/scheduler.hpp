@@ -36,7 +36,7 @@ class scheduler : public ecoro::scheduler {
   void shutdown();
   int exec();
 
-  [[nodiscard]] ecoro::task<void> sleep_for(
+  [[nodiscard]] ecoro::task<void> schedule_after(
       const std::chrono::seconds seconds) noexcept override;
 
  protected:
