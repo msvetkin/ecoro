@@ -15,7 +15,7 @@ namespace ecoro {
 class scheduler {
  public:
   [[nodiscard]] virtual task<void> schedule_after(
-      const std::chrono::seconds seconds) noexcept = 0;
+      const std::chrono::nanoseconds delay) noexcept = 0;
 };
 
 }  // namespace ecoro

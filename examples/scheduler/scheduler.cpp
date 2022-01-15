@@ -12,8 +12,7 @@
 namespace ecoro::sts {
 
 bool scheduler::timer_awaiter::await_ready() const noexcept {
-  const auto now = std::chrono::time_point_cast<std::chrono::seconds>(
-      std::chrono::system_clock::now());
+  const auto now = std::chrono::steady_clock::now();
   return when < now;
 }
 
@@ -21,9 +20,6 @@ bool scheduler::timer_awaiter::await_suspend(
     std::coroutine_handle<> awaiting_coro) noexcept {
   handle = awaiting_coro;
   scheduler_.add_timer_awaiter(this);
-
-  const auto epoch_time = std::chrono::system_clock::to_time_t(when);
-
   return true;
 }
 
@@ -36,11 +32,9 @@ int scheduler::exec() {
 }
 
 ecoro::task<void> scheduler::schedule_after(
-    const std::chrono::seconds seconds) noexcept {
+    const std::chrono::nanoseconds delay) noexcept {
   co_return co_await timer_awaiter{
-      *this, std::chrono::time_point_cast<std::chrono::seconds>(
-                 std::chrono::system_clock::now()) +
-                 seconds};
+    *this, std::chrono::steady_clock::now() + delay};
 }
 
 void scheduler::add_timer_awaiter(timer_awaiter *timer) {
@@ -53,10 +47,7 @@ void scheduler::shutdown() {
 
 task<void> scheduler::process_timers() {
   while (running_) {
-    const auto now = std::chrono::time_point_cast<std::chrono::seconds>(
-        std::chrono::system_clock::now());
-    const auto epoch_time = std::chrono::system_clock::to_time_t(now);
-
+    const auto now = std::chrono::steady_clock::now();
     if (timer_awaiters_.empty()) {
       std::this_thread::yield();
       continue;
@@ -64,9 +55,6 @@ task<void> scheduler::process_timers() {
 
     auto timer_awaiters = std::exchange(timer_awaiters_, {});
     for (auto *timer_awaiter : timer_awaiters) {
-      const auto when_time =
-          std::chrono::system_clock::to_time_t(timer_awaiter->when);
-
       if (timer_awaiter->when <= now) {
         timer_awaiter->handle.resume();
         if (!running_)

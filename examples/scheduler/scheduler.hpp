@@ -22,7 +22,7 @@ class scheduler : public ecoro::scheduler {
     void await_resume() const noexcept;
 
     scheduler &scheduler_;
-    const std::chrono::time_point<std::chrono::system_clock> when;
+    std::chrono::steady_clock::time_point when;
     std::coroutine_handle<> handle;
   };
 
@@ -37,7 +37,7 @@ class scheduler : public ecoro::scheduler {
   int exec();
 
   [[nodiscard]] ecoro::task<void> schedule_after(
-      const std::chrono::seconds seconds) noexcept override;
+      const std::chrono::nanoseconds delay) noexcept override;
 
  protected:
   void add_timer_awaiter(timer_awaiter *timer);
