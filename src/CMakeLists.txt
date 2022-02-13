@@ -1,6 +1,7 @@
 add_library(ecoro
   manual_reset_event.cpp
   scope.cpp
+  stop_token.cpp
 )
 add_library(ecoro::ecoro ALIAS ecoro)
 
