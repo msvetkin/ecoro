@@ -21,8 +21,8 @@ void stop_state::request_stop() noexcept {
 
   stop_requested_ = true;
 
-  for (auto *callback : callbacks_) {
-    callback->execute();
+  for (auto &callback : callbacks_) {
+    callback.execute();
   }
 
   callbacks_.clear();
@@ -32,11 +32,11 @@ bool stop_state::stop_requested() const noexcept {
   return stop_requested_;
 }
 
-bool stop_state::try_add_callback(stop_callback_base *callback) noexcept {
+bool stop_state::try_add_callback(stop_callback_base &callback) noexcept {
   std::lock_guard lock{mutex_};
 
   if (stop_requested_) {
-    callback->execute();
+    callback.execute();
     return false;
   }
 
@@ -44,14 +44,9 @@ bool stop_state::try_add_callback(stop_callback_base *callback) noexcept {
   return true;
 }
 
-void stop_state::remove_callback(stop_callback_base *callback) noexcept {
+void stop_state::remove_callback(stop_callback_base &callback) noexcept {
   std::lock_guard lock{mutex_};
-
-  if (callbacks_.size() && callbacks_.back() == callback) {
-    callbacks_.pop_back();
-  } else {
-    std::erase(callbacks_, callback);
-  }
+  callbacks_.erase(callbacks_.iterator_to(callback));
 }
 
 }  // namespace detail::_st
