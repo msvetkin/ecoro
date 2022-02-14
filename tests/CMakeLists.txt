@@ -14,6 +14,8 @@ macro(ecoro_test TESTNAME)
   gtest_discover_tests(${TESTNAME})
 endmacro()
 
+add_subdirectory(detail)
+
 ecoro_test(tst_task)
 ecoro_test(tst_awaiter_traits)
 ecoro_test(tst_manual_reset_event)

@@ -6,21 +6,26 @@
 #ifndef ECORO_STOP_TOKEN_HPP
 #define ECORO_STOP_TOKEN_HPP
 
-#include <memory>
-#include <utility>
-#include <mutex>
-#include <vector>
+#include "ecoro/detail/intrusive/list.hpp"
+
 #include <concepts>
+#include <memory>
+#include <mutex>
+#include <type_traits>
 
 namespace ecoro {
 
 namespace detail::_st {
 
-struct stop_callback_base {
+struct stop_callback_base : intrusive::list_node<stop_callback_base> {
   using execute_fn = void(stop_callback_base*) noexcept;
-  execute_fn *execute_;
+
+  explicit stop_callback_base(execute_fn *execute) noexcept
+    : execute_(execute) {}
 
   void execute() noexcept;
+
+  execute_fn *execute_;
 };
 
 class stop_state {
@@ -28,12 +33,12 @@ class stop_state {
   void request_stop() noexcept;
   [[nodiscard]] bool stop_requested() const noexcept;
 
-  bool try_add_callback(stop_callback_base *callback) noexcept;
-  void remove_callback(stop_callback_base *callback) noexcept;
+  bool try_add_callback(stop_callback_base &callback) noexcept;
+  void remove_callback(stop_callback_base &callback) noexcept;
 
  private:
   bool stop_requested_{false};
-  std::vector<stop_callback_base *> callbacks_;
+  intrusive::list<stop_callback_base> callbacks_;
   std::mutex mutex_;
 };
 
@@ -113,7 +118,7 @@ class [[nodiscard]] stop_callback {
 
   ~stop_callback() {
     if (auto state = state_.lock()) {
-      state->remove_callback(&model_);
+      state->remove_callback(model_);
     }
   }
 
@@ -126,7 +131,7 @@ private:
 
   inline void register_callback(const stop_token &token) noexcept {
     if (auto state = token.state_.lock()) {
-      if (state->try_add_callback(&model_)) {
+      if (state->try_add_callback(model_)) {
           state_ = state;
       }
     }
