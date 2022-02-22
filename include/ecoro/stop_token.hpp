@@ -6,9 +6,9 @@
 #ifndef ECORO_STOP_TOKEN_HPP
 #define ECORO_STOP_TOKEN_HPP
 
+#include "ecoro/detail/std_concepts.hpp"
 #include "ecoro/detail/intrusive/list.hpp"
 
-#include <concepts>
 #include <memory>
 #include <mutex>
 #include <type_traits>
@@ -93,14 +93,14 @@ class stop_source {
 template<typename Callback>
 class [[nodiscard]] stop_callback {
   static_assert(std::is_nothrow_destructible_v<Callback>);
-  static_assert(std::invocable<Callback>);
+  static_assert(invocable<Callback>);
 
  public:
   using callback_type = Callback;
 
   template<typename OtherCallback>
-      requires std::invocable<OtherCallback> &&
-               std::constructible_from<Callback, OtherCallback>
+      requires invocable<OtherCallback> &&
+               constructible_from<Callback, OtherCallback>
   explicit stop_callback(const stop_token &token, OtherCallback &&callback) noexcept(
       std::is_nothrow_constructible_v<Callback, OtherCallback>)
       : model_(std::forward<OtherCallback>(callback)) {
@@ -108,8 +108,8 @@ class [[nodiscard]] stop_callback {
   }
 
   template<typename OtherCallback>
-      requires std::invocable<OtherCallback> &&
-               std::constructible_from<Callback, OtherCallback>
+      requires invocable<OtherCallback> &&
+               constructible_from<Callback, OtherCallback>
   explicit stop_callback(stop_token &&token, OtherCallback &&callback) noexcept(
       std::is_nothrow_constructible_v<Callback, OtherCallback>)
       : model_(std::forward<OtherCallback>(callback)) {
