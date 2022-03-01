@@ -89,7 +89,7 @@ class sync_wait_task final : public task<T, sync_wait_task_promise<T>> {
 };
 
 template<typename Awaitable>
-sync_wait_task<awaitable_return_t<Awaitable>> make_sync_wait_task(
+sync_wait_task<awaitable_return_type<Awaitable>> make_sync_wait_task(
     Awaitable &&awaitable) {
   co_return co_await std::forward<Awaitable>(awaitable);
 }

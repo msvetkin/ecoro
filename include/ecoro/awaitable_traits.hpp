@@ -1,4 +1,4 @@
-// Copyright 2021 - present, Mikhail Svetkin
+// Copyright 2022 - present, Mikhail Svetkin
 // All rights reserved.
 //
 // For the license information refer to LICENSE
@@ -6,48 +6,39 @@
 #ifndef ECORO_AWAITABLE_TRAITS_HPP
 #define ECORO_AWAITABLE_TRAITS_HPP
 
+#include "ecoro/awaitable_concepts.hpp"
 #include "ecoro/awaiter_traits.hpp"
-#include "ecoro/detail/traits.hpp"
+#include "ecoro/coroutine.hpp"
+#include "ecoro/concepts.hpp"
+
+#include <type_traits>
+#include <utility>
 
 namespace ecoro {
 
-namespace detail {
+namespace detail::_awaitable_traits {
 
-template<typename Awaitable>
-using co_await_expr = decltype(std::declval<Awaitable>().operator co_await());
+inline const struct _get_awaiter_fn {
+  template <typename Awaitable>
+  constexpr decltype(auto) operator()(Awaitable &&awaitable) const noexcept {
+    if constexpr (has_member_operator_co_await<Awaitable>) {
+      return awaitable.operator co_await();
+    } else if constexpr (has_free_operator_co_await<Awaitable>) {
+      return operator co_await(static_cast<Awaitable&&>(awaitable));
+    } else {
+      return;
+    }
+  }
+} get_awaiter {};
 
-template<typename Awaitable, typename = void>
-struct has_co_await {
-  static constexpr bool value = false;
-  using type = std::false_type;
-};
+}  // namespace detail::_awaitable_traits
 
-template<typename Awaitable>
-struct has_co_await<
-    Awaitable, std::enable_if_t<is_detected<co_await_expr, Awaitable>::value>> {
-  static constexpr bool value = true;
-  using type = co_await_expr<Awaitable>;
-};
+template <awaitable Awaitable>
+using awaiter_type_t = decltype(
+    detail::_awaitable_traits::get_awaiter(std::declval<Awaitable>()));
 
-}  // namespace detail
-
-template<typename T>
-struct awaitable_traits {
-  using awaiter_type = typename detail::has_co_await<T>::type;
-  using awaiter = awaiter_traits<awaiter_type>;
-
-  static constexpr bool has_co_await = detail::has_co_await<T>::value;
-
-  static constexpr bool is_awaitable =
-      has_co_await && awaiter::has_await_ready && awaiter::has_await_suspend &&
-      awaiter::has_await_resume;
-};
-
-template<typename T>
-using awaitable_traits_t = awaitable_traits<T>;
-
-template<typename T>
-using awaitable_return_t = typename awaitable_traits<T>::awaiter::return_type;
+template<awaitable Awaitable>
+using awaitable_return_type = awaiter_return_type<awaiter_type_t<Awaitable>>;
 
 }  // namespace ecoro
 

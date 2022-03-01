@@ -15,11 +15,10 @@ namespace ecoro::detail {
 
 template<typename T, typename... Args>
 decltype(auto) invoke_or_pass(T &&awaitable, Args &&...args) {
-  constexpr bool is_awaitable = awaitable_traits<T>::is_awaitable;
+  constexpr bool is_awaitable = ecoro::awaitable<T>;
 
   if constexpr (!is_awaitable && std::is_invocable_v<T, Args...>) {
-    if constexpr (awaitable_traits<
-                      std::invoke_result_t<T, Args...>>::is_awaitable) {
+    if constexpr (ecoro::awaitable<std::invoke_result_t<T, Args...>>) {
       return awaitable(std::forward<Args>(args)...);
     } else {
       static_assert(is_awaitable,

@@ -99,7 +99,7 @@ class when_all_task final : public task<T, when_all_task_promise<T>> {
 };
 
 template<typename Awaitable>
-when_all_task<awaitable_return_t<Awaitable>> make_when_all_task(
+when_all_task<awaitable_return_type<Awaitable>> make_when_all_task(
     Awaitable awaitable) {
   co_return co_await awaitable;
 }
