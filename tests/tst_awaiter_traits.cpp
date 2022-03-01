@@ -14,12 +14,12 @@ TEST(awaiter_traits, non_awaiter) {
 
   constexpr auto awaiter_return_type_check =
       std::is_same_v<awaiter::return_type, const ecoro::nonawaiter_t>;
-  EXPECT_TRUE(awaiter_return_type_check);
+  ASSERT_TRUE(awaiter_return_type_check);
 
-  EXPECT_FALSE(awaiter::has_await_ready);
-  EXPECT_FALSE(awaiter::has_await_suspend);
-  EXPECT_FALSE(awaiter::has_await_resume);
-  EXPECT_FALSE(awaiter::is_awaiter);
+  ASSERT_FALSE(awaiter::has_await_ready);
+  ASSERT_FALSE(awaiter::has_await_suspend);
+  ASSERT_FALSE(awaiter::has_await_resume);
+  ASSERT_FALSE(awaiter::is_awaiter);
 }
 
 TEST(awaiter_traits, awaiter_resume_void) {
@@ -27,12 +27,12 @@ TEST(awaiter_traits, awaiter_resume_void) {
 
   constexpr auto awaiter_return_type_check =
       std::is_same_v<awaiter::return_type, void>;
-  EXPECT_TRUE(awaiter_return_type_check);
+  ASSERT_TRUE(awaiter_return_type_check);
 
-  EXPECT_TRUE(awaiter::has_await_ready);
-  EXPECT_TRUE(awaiter::has_await_suspend);
-  EXPECT_TRUE(awaiter::has_await_resume);
-  EXPECT_TRUE(awaiter::is_awaiter);
+  ASSERT_TRUE(awaiter::has_await_ready);
+  ASSERT_TRUE(awaiter::has_await_suspend);
+  ASSERT_TRUE(awaiter::has_await_resume);
+  ASSERT_TRUE(awaiter::is_awaiter);
 }
 
 TEST(awaiter_traits, awaiter_resume_int) {
@@ -47,10 +47,10 @@ TEST(awaiter_traits, awaiter_resume_int) {
 
   constexpr auto awaiter_return_type_check =
       std::is_same_v<awaiter::return_type, int>;
-  EXPECT_TRUE(awaiter_return_type_check);
+  ASSERT_TRUE(awaiter_return_type_check);
 
-  EXPECT_TRUE(awaiter::has_await_ready);
-  EXPECT_TRUE(awaiter::has_await_suspend);
-  EXPECT_TRUE(awaiter::has_await_resume);
-  EXPECT_TRUE(awaiter::is_awaiter);
+  ASSERT_TRUE(awaiter::has_await_ready);
+  ASSERT_TRUE(awaiter::has_await_suspend);
+  ASSERT_TRUE(awaiter::has_await_resume);
+  ASSERT_TRUE(awaiter::is_awaiter);
 }
