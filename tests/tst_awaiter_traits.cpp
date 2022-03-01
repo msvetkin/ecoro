@@ -7,50 +7,51 @@
 
 #include "gtest/gtest.h"
 
-TEST(awaiter_traits, non_awaiter) {
-  struct non_awaitable {};
+template<typename, typename = void>
+struct can_get_awaiter_return_type : std::false_type {};
 
-  using awaiter = ecoro::awaiter_traits<non_awaitable>;
+template<typename Awaiter>
+struct can_get_awaiter_return_type<
+    Awaiter, std::void_t<ecoro::awaiter_return_type<Awaiter>>>
+    : std::true_type {};
 
-  constexpr auto awaiter_return_type_check =
-      std::is_same_v<awaiter::return_type, const ecoro::nonawaiter_t>;
-  ASSERT_TRUE(awaiter_return_type_check);
+TEST(awaiter_traits, no_awaiter_return_type) {
+  struct awaiter {};
 
-  ASSERT_FALSE(awaiter::has_await_ready);
-  ASSERT_FALSE(awaiter::has_await_suspend);
-  ASSERT_FALSE(awaiter::has_await_resume);
-  ASSERT_FALSE(awaiter::is_awaiter);
+  ASSERT_FALSE(can_get_awaiter_return_type<awaiter>::value);
 }
 
-TEST(awaiter_traits, awaiter_resume_void) {
-  using awaiter = ecoro::awaiter_traits<std::suspend_always>;
+TEST(awaiter_traits, awaiter_return_void) {
+  using awaiter = std::suspend_always;
 
-  constexpr auto awaiter_return_type_check =
-      std::is_same_v<awaiter::return_type, void>;
-  ASSERT_TRUE(awaiter_return_type_check);
+  constexpr bool exists_return_type =
+      can_get_awaiter_return_type<awaiter>::value;
 
-  ASSERT_TRUE(awaiter::has_await_ready);
-  ASSERT_TRUE(awaiter::has_await_suspend);
-  ASSERT_TRUE(awaiter::has_await_resume);
-  ASSERT_TRUE(awaiter::is_awaiter);
+  ASSERT_TRUE(exists_return_type);
+
+  if constexpr (exists_return_type) {
+    constexpr auto check_return_type =
+        std::is_same_v<ecoro::awaiter_return_type<awaiter>, void>;
+    ASSERT_TRUE(check_return_type);
+  }
 }
 
-TEST(awaiter_traits, awaiter_resume_int) {
-  struct awaiter_resume_int {
+TEST(awaiter_traits, awaiter_return_int) {
+  struct awaiter {
     bool await_ready() const noexcept;
     bool await_suspend(
         std::coroutine_handle<> awaitingCoroutine) const noexcept;
     int await_resume() const noexcept { return {}; }
   };
 
-  using awaiter = ecoro::awaiter_traits<awaiter_resume_int>;
+  constexpr bool exists_return_type =
+      can_get_awaiter_return_type<awaiter>::value;
 
-  constexpr auto awaiter_return_type_check =
-      std::is_same_v<awaiter::return_type, int>;
-  ASSERT_TRUE(awaiter_return_type_check);
+  ASSERT_TRUE(exists_return_type);
 
-  ASSERT_TRUE(awaiter::has_await_ready);
-  ASSERT_TRUE(awaiter::has_await_suspend);
-  ASSERT_TRUE(awaiter::has_await_resume);
-  ASSERT_TRUE(awaiter::is_awaiter);
+  if constexpr (exists_return_type) {
+    constexpr auto check_return_type =
+        std::is_same_v<ecoro::awaiter_return_type<awaiter>, int>;
+    ASSERT_TRUE(check_return_type);
+  }
 }
