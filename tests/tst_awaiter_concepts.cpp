@@ -20,7 +20,7 @@ TEST(awaiter_concepts, non_awaiter) {
   constexpr bool has_await_resume = ecoro::has_await_resume<awaiter>;
   ASSERT_FALSE(has_await_resume);
 
-  constexpr bool is_awaiter = ecoro::awaiter<non_awaiter>;
+  constexpr bool is_awaiter = ecoro::awaiter<awaiter>;
   ASSERT_FALSE(is_awaiter);
 }
 
