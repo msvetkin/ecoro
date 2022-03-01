@@ -18,6 +18,9 @@ concept invocable = std::invocable<Fn, Args...>;
 template<typename Fn, typename ... Args>
 concept constructible_from = std::constructible_from<Fn, Args...>;
 
+template <typename From, typename To>
+concept convertible_to = std::convertible_to<From, To>;
+
 }  // namespace ecoro
 
 #else
@@ -34,6 +37,11 @@ concept destructible = std::is_nothrow_destructible_v<T>;
 template <typename T, typename ... Args>
 concept constructible_from =
   destructible<T> && std::is_constructible_v<T, Args...>;
+
+template <typename From, typename To>
+concept convertible_to = std::is_convertible_v<From, To> && requires {
+  static_cast<To>(std::declval<From>());
+};
 
 template<typename Fn, typename ... Args>
 concept invocable = requires(Fn &&fn, Args &&... args) {

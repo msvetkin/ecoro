@@ -1,4 +1,4 @@
-// Copyright 2021 - present, Mikhail Svetkin
+// Copyright 2022 - present, Mikhail Svetkin
 // All rights reserved.
 //
 // For the license information refer to LICENSE
@@ -6,51 +6,53 @@
 #ifndef ECORO_AWAITER_TRAITS_HPP
 #define ECORO_AWAITER_TRAITS_HPP
 
-#include "ecoro/coroutine.hpp"
-#include "ecoro/detail/traits.hpp"
+#include "ecoro/awaiter_concepts.hpp"
+
+#include <utility>
 
 namespace ecoro {
 
-namespace detail {
-
-template<typename Awaiter>
-using await_ready_expr = decltype(std::declval<Awaiter>().await_ready());
-
-template<typename Awaiter>
-using await_suspend_expr = decltype(std::declval<Awaiter>().await_suspend(
-    std::declval<std::coroutine_handle<>>()));
-
-template<typename Awaiter>
-using await_resume_expr = decltype(std::declval<Awaiter>().await_resume());
-
-template<typename Awaiter, typename = void>
-struct has_await_resume {
-  static constexpr bool value = false;
-  using type = std::false_type;
+struct nonawaiter_t {
+  explicit nonawaiter_t() = default;
 };
 
+inline constexpr nonawaiter_t nonawaiter{};
+
+namespace detail::_awaiter_traits {
+
+inline const struct _get_awaiter_return_type_fn {
+  template <typename Awaiter>
+  constexpr decltype(auto) operator()(Awaiter &&awaiter) const noexcept {
+    if constexpr (has_await_resume<Awaiter>) {
+      return awaiter.await_resume();
+    } else {
+      return nonawaiter;
+    }
+  }
+} get_awaiter_return_type{};
+
+template <typename Awaiter>
+using awaiter_return_type = decltype(
+    get_awaiter_return_type(std::declval<Awaiter>()));
+
 template<typename Awaiter>
-struct has_await_resume<
-    Awaiter, std::enable_if_t<is_detected<await_resume_expr, Awaiter>::value>> {
-  static constexpr bool value = true;
-  using type = await_resume_expr<Awaiter>;
-};
-
-}  // namespace detail
-
-template<typename T>
 struct awaiter_traits {
-  static constexpr bool has_await_ready =
-      detail::is_detected<detail::await_ready_expr, T>::value;
-  static constexpr bool has_await_suspend =
-      detail::is_detected<detail::await_suspend_expr, T>::value;
-  static constexpr bool has_await_resume = detail::has_await_resume<T>::value;
+  static constexpr bool has_await_ready = ecoro::has_await_ready<Awaiter>;
+  static constexpr bool has_await_suspend = ecoro::has_await_suspend<Awaiter>;
+  static constexpr bool has_await_resume = ecoro::has_await_resume<Awaiter>;
+  static constexpr bool is_awaiter = ecoro::awaiter<Awaiter>;
 
-  using return_type = typename detail::has_await_resume<T>::type;
+  using return_type = awaiter_return_type<Awaiter>;
 };
 
-template<typename T>
-using awaiter_traits_t = awaiter_traits<T>;
+}  // namespace detail::_awaiter_traits
+
+template<awaiter Awaiter>
+using awaiter_return_type =
+    detail::_awaiter_traits::awaiter_return_type<Awaiter>;
+
+template<typename Awaiter>
+using awaiter_traits = detail::_awaiter_traits::awaiter_traits<Awaiter>;
 
 }  // namespace ecoro
 
