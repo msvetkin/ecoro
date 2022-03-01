@@ -99,7 +99,7 @@ class when_any_task final : public task<T, when_any_task_promise<Index, T>> {
 };
 
 template<std::size_t Index, typename Awaitable>
-when_any_task<Index, awaitable_return_t<Awaitable>> make_when_any_task(
+when_any_task<Index, awaitable_return_type<Awaitable>> make_when_any_task(
     Awaitable awaitable) {
   co_return co_await awaitable;
 }

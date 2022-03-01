@@ -15,7 +15,7 @@
 namespace ecoro {
 
 template<typename Awaitable, typename Trigger>
-[[nodiscard]] task<std::optional<awaitable_return_t<Awaitable>>> when_first(
+[[nodiscard]] task<std::optional<awaitable_return_type<Awaitable>>> when_first(
     Awaitable awaitable, Trigger trigger) {
   auto &&[index, awaitables] =
       co_await when_any(std::move(awaitable), std::move(trigger));
