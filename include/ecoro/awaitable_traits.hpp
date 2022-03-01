@@ -7,6 +7,7 @@
 #define ECORO_AWAITABLE_TRAITS_HPP
 
 #include "ecoro/awaiter_traits.hpp"
+#include "ecoro/detail/traits.hpp"
 
 namespace ecoro {
 
