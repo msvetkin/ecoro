@@ -41,7 +41,8 @@ ctest
 #### CMake presets:
 
 vcpkg presets uses "Ninja Multi-Config" generator and try to auto-detect vcpkg.cmake location.
-If auto-dectection does not work then pass `-DVCPKG_ROOT` on a configure step.
+If auto-dectection does not work then you can use the standard way of vcpkg integration via
+`-DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake`.
 
 ```shell
 cmake --preset vcpkg-<clang/gcc/msvc>
