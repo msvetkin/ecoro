@@ -19,12 +19,6 @@ jobs:
       shell: bash
       run: choco install ninja
 
-    - name: Install packages
-      working-directory: ${{ env.HOME }}
-      shell: cmd
-      run: |
-          vcpkg install gtest --triplet x64-windows
-
     - name: Configure
       shell: cmd
       run: |
