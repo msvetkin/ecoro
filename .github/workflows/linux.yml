@@ -15,15 +15,13 @@ jobs:
               type: gcc,
               version: 10,
               cc: gcc,
-              cxx: g++,
-              triplet: x64-linux
+              cxx: g++
             },
             {
               type: clang,
               version: 10,
               cc: clang,
-              cxx: clang++,
-              triplet: x64-linux-clang-libcxx
+              cxx: clang++
             }
         ]
 
@@ -50,17 +48,7 @@ jobs:
             libc++-${{matrix.compiler.version}}-dev \
             libc++abi-${{matrix.compiler.version}}-dev
 
-    - name: Install packages
-      working-directory: ${{ env.HOME }}
-      shell: bash
-      run: |
-          CXX=${{matrix.compiler.cxx}}-${{matrix.compiler.version}} \
-          CC=${{matrix.compiler.cc}}-${{matrix.compiler.version}} \
-          vcpkg install gtest \
-              --triplet=${{matrix.compiler.triplet}} \
-              --overlay-triplets=./cmake/vcpkg/triplets/
-
-    - name: Configure CMake
+    - name: Configure
       shell: bash
       run: |
           COMPILER_VERSION=-${{matrix.compiler.version}} \

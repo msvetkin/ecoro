@@ -16,7 +16,10 @@
       "name": "vcpkg",
       "inherits": "default",
       "hidden": true,
-      "toolchainFile": "${sourceDir}/cmake/vcpkg/vcpkg.cmake"
+      "toolchainFile": "${sourceDir}/cmake/vcpkg/vcpkg.cmake",
+      "environment": {
+        "VCPKG_OVERLAY_TRIPLETS": "./cmake/vcpkg/triplets/"
+      }
     },
     {
       "name": "vcpkg-gcc",
@@ -45,6 +48,9 @@
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
+      },
+      "environment": {
+        "VCPKG_DEFAULT_TRIPLET": "x64-windows"
       }
     }
   ],
