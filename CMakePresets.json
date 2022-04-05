@@ -36,8 +36,10 @@
       "displayName": "Ninja Multi-Config",
       "environment": {
         "CXX": "clang++$env{COMPILER_VERSION}",
-        "CC": "clang$env{COMPILER_VERSION}",
-        "VCPKG_DEFAULT_TRIPLET": "x64-linux-clang-libcxx"
+        "CC": "clang$env{COMPILER_VERSION}"
+      },
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-linux-clang-libcxx"
       }
     },
     {
@@ -49,8 +51,8 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "environment": {
-        "VCPKG_DEFAULT_TRIPLET": "x64-windows"
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
       }
     }
   ],
