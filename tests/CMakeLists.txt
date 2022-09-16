@@ -9,7 +9,7 @@ macro(ecoro_test TESTNAME)
     PRIVATE
       GTest::gtest
       GTest::gtest_main
-      ecoro
+      ecoro::ecoro
   )
   gtest_discover_tests(${TESTNAME})
 endmacro()

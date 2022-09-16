@@ -9,6 +9,8 @@
 #include "ecoro/detail/task_awaitable.hpp"
 #include "ecoro/task_promise.hpp"
 
+#include <utility>
+
 namespace ecoro {
 
 template<typename T, typename Promise = task_promise<T>,

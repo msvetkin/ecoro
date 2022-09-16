@@ -10,13 +10,18 @@
       "name": "default",
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/build/${presetName}",
-      "hidden": true
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": true,
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true
+      }
     },
     {
       "name": "vcpkg",
       "inherits": "default",
       "hidden": true,
-      "toolchainFile": "${sourceDir}/cmake/vcpkg/vcpkg.cmake",
+      "toolchainFile": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "environment": {
         "VCPKG_OVERLAY_TRIPLETS": "./cmake/vcpkg/triplets/"
       }

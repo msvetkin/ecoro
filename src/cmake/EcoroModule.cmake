@@ -20,41 +20,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.21)
+set(project_prefix ecoro)
+set(targets_export_name ${project_prefix}-targets)
 
-project(ecoro VERSION 0.0.1 LANGUAGES CXX)
+function(ecoro_module name)
+  set(target ${project_prefix}-${name})
+  set(alias ${project_prefix}::${name})
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+  add_library(${target})
 
-include(GNUInstallDirs)
+  target_include_directories(
+    ${target}
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  )
+  set_target_properties(${target} PROPERTIES EXPORT_NAME ${name})
+  add_library(${alias} ALIAS ${target})
 
-include(EcoroModule)
+  install(TARGETS ${target} EXPORT ${targets_export_name})
+  install(DIRECTORY include/${project_prefix} TYPE INCLUDE)
 
-add_subdirectory(core)
-
-# project-wide wrapper
-add_library(ecoro INTERFACE)
-target_link_libraries(ecoro INTERFACE ecoro::core)
-add_library(ecoro::ecoro ALIAS ecoro)
-install(TARGETS ecoro EXPORT ${targets_export_name})
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/ecoro-config-version.cmake
-  COMPATIBILITY SameMajorVersion)
-configure_package_config_file(ecoro-config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/ecoro-config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ecoro)
-
-# installation
-install(
-  EXPORT ${targets_export_name}
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ecoro
-  NAMESPACE ecoro::)
-
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/ecoro-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/ecoro-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ecoro
-)
+  set(${project_prefix}_current_target ${target} PARENT_SCOPE)
+endfunction()
